@@ -99,3 +99,17 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+# Windows thumbnail cache files
+Thumbs.db
+ehthumbs.db
+ehthumbs_vista.db
+
+# Dump file
+*.stackdump
+
+# Folder config file
+[Dd]esktop.ini
+
+# Settings file for app
+settings.ini
