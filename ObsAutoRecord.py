@@ -7,8 +7,15 @@
 # Notes       : System tray icon code based on Simon Brunning's SysTrayIcon.py
 #               http://www.brunningonline.net/simon/blog/archives/SysTrayIcon.py.html
          
+import configparser
+import json
 import os
+import psutil
 import sys
+import threading
+import time
+import uuid
+import websocket
 import win32api
 import win32con
 import win32gui_struct
@@ -16,13 +23,6 @@ try:
     import winxpgui as win32gui
 except ImportError:
     import win32gui
-import configparser
-import json
-import psutil
-import threading
-import time
-import uuid
-import websocket
 
 class ObsAutoRecord():
     def __init__(self):
@@ -79,7 +79,6 @@ class ObsAutoRecord():
 
     def is_app_open(self):
         apps_to_record = get_apps_to_record();
-        print(apps_to_record)
         for pid in psutil.pids():
             p = psutil.Process(pid)
             if p.name() in apps_to_record:
@@ -210,6 +209,7 @@ class SysTrayIcon(object):
 
     def update_icon_from_state(self, state):
         self.icon = os.path.join(os.getcwd(), 'record_green.ico' if state else 'record_red.ico')
+        self.hover_text = 'OBS Auto Record ' + ('(connected)' if state else '(disconnected)')
         self.refresh_icon()
 
     def restart(self, hwnd, msg, wparam, lparam):
@@ -338,11 +338,11 @@ def get_address():
 
 if __name__ == '__main__':
     obs_auto_record = ObsAutoRecord()
-    hover_text = "OBS Auto Record"
     def quit(sysTrayIcon):
         obs_auto_record.close()
     sys_tray_icon = SysTrayIcon(obs_auto_record,
                                 os.path.join(os.getcwd(), 'record_red.ico'),
-                                hover_text, (),
+                                'OBS Auto Record',
+                                (),
                                 on_quit=quit,
                                 default_menu_index=1)
