@@ -2,12 +2,13 @@
 # Module      : ObsAutoRecord.py
 # Description : Windows System tray icon app that auto records apps/games in OBS.
 # Author      : Frederick Meyer
-# Version     : 1.0
+# Version     : 1.0.1
 # Date        : 12 November 2017
 # Notes       : System tray icon code based on Simon Brunning's SysTrayIcon.py
 #               http://www.brunningonline.net/simon/blog/archives/SysTrayIcon.py.html
          
 import configparser
+import fnmatch
 import json
 import os
 import psutil
@@ -33,6 +34,7 @@ class ObsAutoRecord():
         self.should_restart = True
         self.state = False
         self.on_state_change = None
+        self.apps_to_record = get_apps_to_record();
         self.start()
 
     def set_on_state_change(self, on_state_change):
@@ -52,10 +54,12 @@ class ObsAutoRecord():
 
     def on_message(self, ws, message):
         json_msg = json.loads(message)
-        if 'recording' in json_msg and not json_msg['recording'] and self.is_app_open():
-            self.send_message("StartRecording")
-        elif 'recording' in json_msg and json_msg['recording'] and not self.is_app_open():
-            self.send_message("StopRecording")
+        if 'recording' in json_msg:
+            is_app_open = self.is_app_open()
+            if not json_msg['recording'] and is_app_open:
+                self.send_message("StartRecording")
+            elif json_msg['recording'] and not is_app_open:
+                self.send_message("StopRecording")
 
     def on_error(self, ws, error):
         print(error)
@@ -78,11 +82,10 @@ class ObsAutoRecord():
         self.timer.start()
 
     def is_app_open(self):
-        apps_to_record = get_apps_to_record();
-        for pid in psutil.pids():
-            p = psutil.Process(pid)
-            if p.name() in apps_to_record:
-                return True
+        for proc in psutil.process_iter(attrs=['name']):
+            for app in self.apps_to_record:
+                if fnmatch.fnmatchcase(proc.name(), app):
+                    return True
         return False
 
     def send_message(self, requestType):
