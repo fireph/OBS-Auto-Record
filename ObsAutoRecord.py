@@ -1,12 +1,9 @@
 import configparser
 import fnmatch
-import json
+from ObsWebSocket import ObsWebSocket
 import platform
 import psutil
 import threading
-import time
-import uuid
-import websocket
 
 def get_apps_to_record():
     config = configparser.ConfigParser()
@@ -43,57 +40,39 @@ def get_address():
 
 class ObsAutoRecord():
     def __init__(self):
-        self.ws = None
-        self.wst = None
-        self.timer = None
-        self.interval = 15
-        self.should_restart = True
-        self.state = False
-        self.on_state_change = None
         self.apps_to_record = get_apps_to_record();
+        self.interval = 15
+        self.obs_web_socket = None
+        self.on_state_change = None
+        self.timer = None
         self.start()
+
+    def start(self):
+        self.obs_web_socket = ObsWebSocket(
+            get_address(),
+            on_open=self.on_open,
+            on_close=self.on_close)
 
     def set_on_state_change(self, on_state_change):
         self.on_state_change = on_state_change
-        self.on_state_change(self.state)
+        self._on_state_change()
 
-    def start(self):
-        self.should_restart = True
-        self.ws = websocket.WebSocketApp("ws://" + get_address(),
-            on_message = self.on_message,
-            on_error = self.on_error,
-            on_close = self.on_close)
-        self.ws.on_open = self.on_open
-        self.wst = threading.Thread(target=self.ws.run_forever)
-        self.wst.daemon = True
-        self.wst.start()
-
-    def on_message(self, ws, message):
-        json_msg = json.loads(message)
-        if 'recording' in json_msg:
-            is_app_open = self.is_app_open()
-            if not json_msg['recording'] and is_app_open:
-                self.send_message("StartRecording")
-            elif json_msg['recording'] and not is_app_open:
-                self.send_message("StopRecording")
-
-    def on_error(self, ws, error):
-        print(error)
-
-    def on_close(self, ws):
-        self.set_state(False)
-        if self.timer is not None:
-            self.timer.cancel()
-        if self.should_restart:
-            time.sleep(self.interval)
-            self.start()
-
-    def on_open(self, ws):
-        self.set_state(True)
+    def on_open(self):
+        self._on_state_change()
         self.ping_status()
 
+    def on_close(self):
+        self._on_state_change()
+
     def ping_status(self):
-        self.send_message("GetStreamingStatus")
+        def on_status(msg):
+            if 'recording' in msg:
+                is_app_open = self.is_app_open()
+                if not msg['recording'] and is_app_open:
+                    self.obs_web_socket.send("StartRecording")
+                elif msg['recording'] and not is_app_open:
+                    self.obs_web_socket.send("StopRecording")
+        self.obs_web_socket.send("GetStreamingStatus", success_callback=on_status)
         self.timer = threading.Timer(self.interval, self.ping_status)
         self.timer.start()
 
@@ -104,16 +83,6 @@ class ObsAutoRecord():
                     return True
         return False
 
-    def send_message(self, requestType):
-        if self.ws is not None:
-            self.ws.send(json.dumps({'request-type': requestType, 'message-id': str(uuid.uuid4())}))
-
-    def set_state(self, state):
-        self.state = state
+    def _on_state_change(self):
         if self.on_state_change is not None:
-            self.on_state_change(self.state)
-
-    def close(self):
-        self.should_restart = False
-        if self.timer is not None:
-            self.timer.cancel()
+            self.on_state_change(self.obs_web_socket.is_connected())
