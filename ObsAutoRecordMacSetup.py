@@ -11,7 +11,7 @@ APP = ['ObsAutoRecordMac.py']
 DATA_FILES = ['record_green.ico', 'record_red.ico']
 OPTIONS = {
   'argv_emulation': True,
-  'iconfile': 'record_red.icns',
+  'iconfile': 'record_red.ico',
   'optimize': 2,
   'plist': {
     'LSUIElement': True,
