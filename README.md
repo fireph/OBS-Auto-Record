@@ -19,5 +19,5 @@ pyinstaller .\ObsAutoRecordWin.py --onefile --noconsole --icon=record_red.ico --
 ### Mac
 ```
 pip3 install psutil py2app rumps websocket-client
-python ObsAutoRecordMacSetup.py py2app
+python3 ObsAutoRecordMacSetup.py py2app
 ```
