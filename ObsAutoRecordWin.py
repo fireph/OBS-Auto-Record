@@ -228,11 +228,8 @@ def non_string_iterable(obj):
 
 if __name__ == '__main__':
     obs_auto_record = ObsAutoRecord()
-    def quit(sysTrayIcon):
-        obs_auto_record.close()
     sys_tray_icon = SysTrayIcon(obs_auto_record,
                                 os.path.join(os.getcwd(), 'record_red.ico'),
                                 'OBS Auto Record',
                                 (),
-                                on_quit=quit,
                                 default_menu_index=1)
