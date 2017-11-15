@@ -53,7 +53,7 @@ class ObsWebSocket():
                 msg_id = msg_obj['message-id']
                 if msg_id in self.callbacks_by_id:
                     if self.callbacks_by_id[msg_id]['error_callback'] is not None:
-                        self.callbacks_by_id[msg_id]['error_callback'](error)
+                        self.callbacks_by_id[msg_id]['error_callback'](message)
                     del self.callbacks_by_id[msg_id]
         else:
             if 'message-id' in msg_obj:

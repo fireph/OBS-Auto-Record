@@ -9,6 +9,7 @@
 
 from ObsAutoRecord import ObsAutoRecord
 import os
+import pythoncom
 import sys
 import win32api
 import win32con
@@ -17,6 +18,7 @@ try:
     import winxpgui as win32gui
 except ImportError:
     import win32gui
+import wmi
 
 class SysTrayIcon(object):
     '''TODO'''
