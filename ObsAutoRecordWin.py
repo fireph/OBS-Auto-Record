@@ -129,7 +129,7 @@ class SysTrayIcon(object):
         win32gui.Shell_NotifyIcon(message, self.notify_id)
 
     def update_from_state(self, state):
-        self.icon = os.path.join(os.getcwd(), 'record_green.ico' if state else 'record_red.ico')
+        self.icon = get_resource_path('record_green.ico' if state else 'record_red.ico')
         self.hover_text = 'OBS Auto Record ' + ('(connected)' if state else '(disconnected)')
         self.refresh_icon()
 
@@ -228,10 +228,17 @@ def non_string_iterable(obj):
     else:
         return not isinstance(obj, basestring)
 
+def get_resource_path(relative_path):
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
+
 if __name__ == '__main__':
     obs_auto_record = ObsAutoRecord()
     sys_tray_icon = SysTrayIcon(obs_auto_record,
-                                os.path.join(os.getcwd(), 'record_red.ico'),
+                                get_resource_path('record_red.ico'),
                                 'OBS Auto Record',
                                 (),
                                 default_menu_index=1)
