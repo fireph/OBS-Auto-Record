@@ -2,8 +2,8 @@
 # Module      : ObsAutoRecordMac.py
 # Description : Mac menu bar icon app that auto records apps/games in OBS.
 # Author      : Frederick Meyer
-# Version     : 1.0.2
-# Date        : 12 November 2017
+# Version     : 1.1.0
+# Date        : 15 November 2017
 
 from ObsAutoRecord import ObsAutoRecord
 import rumps
