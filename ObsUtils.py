@@ -1,4 +1,5 @@
 import configparser
+import os
 import platform
 
 def get_apps_to_record():
@@ -78,3 +79,7 @@ def get_app_name_from_process(proc):
                 return name
     else:
         return proc.name()
+
+def assure_path_exists(path):
+    if not os.path.exists(path):
+        os.makedirs(path)
