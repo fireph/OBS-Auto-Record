@@ -7,6 +7,7 @@ import ObsUtils
 
 class ObsAutoRecord():
     def __init__(self):
+        self.address = ObsUtils.get_address()
         self.apps_to_record = ObsUtils.get_apps_to_record();
         self.interval = 15
         self.obs_web_socket = None
@@ -16,7 +17,7 @@ class ObsAutoRecord():
 
     def start(self):
         self.obs_web_socket = ObsWebSocket(
-            ObsUtils.get_address(),
+            self.address,
             on_open=self.on_open,
             on_close=self.on_close)
 
@@ -44,6 +45,8 @@ class ObsAutoRecord():
                 if not msg['recording'] and open_app is not None:
                     if folder is not None:
                         rec_folder = os.path.join(folder, open_app).replace('\\', '/')
+                        if "localhost" in self.address or "127.0.0.1" in self.address:
+                            ObsUtils.assure_path_exists(rec_folder)
                         self.obs_web_socket.send(
                             "SetRecordingFolder",
                             data={'rec-folder': rec_folder},
