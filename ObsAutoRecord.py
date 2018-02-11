@@ -9,6 +9,7 @@ class ObsAutoRecord():
     def __init__(self):
         self.address = ObsUtils.get_address()
         self.apps_to_record = ObsUtils.get_apps_to_record();
+        self.default_filename_formatting = '%CCYY-%MM-%DD %hh-%mm-%ss'
         self.interval = 15
         self.obs_web_socket = None
         self.on_state_change = None
@@ -33,11 +34,19 @@ class ObsAutoRecord():
         self._on_state_change()
 
     def ping_status(self):
-        def start_recording(msg):
+        def start_recording():
             self.obs_web_socket.send("StartRecording")
-        def change_folder_back(msg):
+        def set_filename_formatting(app_name):
+            self.obs_web_socket.send(
+                "SetFilenameFormatting",
+                data={'filename-formatting': app_name + ' - ' + self.default_filename_formatting},
+                success_callback=lambda msg: start_recording(),
+                error_callback=lambda msg: start_recording())
+        def change_folder_back():
             folder = ObsUtils.get_folder()
-            self.obs_web_socket.send("SetRecordingFolder", data={'rec-folder': folder})
+            if folder is not None:
+                self.obs_web_socket.send("SetRecordingFolder", data={'rec-folder': folder})
+            self.obs_web_socket.send("SetFilenameFormatting", data={'filename-formatting': self.default_filename_formatting})
         def on_status(msg):
             if 'recording' in msg:
                 open_app = self.get_open_app()
@@ -45,19 +54,17 @@ class ObsAutoRecord():
                 if not msg['recording'] and open_app is not None:
                     if folder is not None:
                         rec_folder = os.path.join(folder, open_app).replace('\\', '/')
-                        if "localhost" in self.address or "127.0.0.1" in self.address:
-                            ObsUtils.assure_path_exists(rec_folder)
                         self.obs_web_socket.send(
                             "SetRecordingFolder",
                             data={'rec-folder': rec_folder},
-                            success_callback=start_recording,
-                            error_callback=start_recording)
+                            success_callback=lambda msg: set_filename_formatting(open_app),
+                            error_callback=lambda msg: set_filename_formatting(open_app))
                     else:
-                        self.obs_web_socket.send("StartRecording")
+                        set_filename_formatting(open_app)
                 elif msg['recording'] and open_app is None:
                     self.obs_web_socket.send(
                         "StopRecording",
-                        success_callback=change_folder_back if folder is not None else None)
+                        success_callback=lambda msg: change_folder_back())
         self.obs_web_socket.send("GetStreamingStatus", success_callback=on_status)
         self.timer = threading.Timer(self.interval, self.ping_status)
         self.timer.start()
