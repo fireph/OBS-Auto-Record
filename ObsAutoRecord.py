@@ -1,9 +1,11 @@
 import fnmatch
+import keyboard
 from ObsWebSocket import ObsWebSocket
 import os
 import psutil
 import threading
 import ObsUtils
+from ObsAutoRecordState import ObsAutoRecordState
 
 class ObsAutoRecord():
     def __init__(self):
@@ -14,6 +16,8 @@ class ObsAutoRecord():
         self.obs_web_socket = None
         self.on_state_change = None
         self.timer = None
+        self.is_paused = False
+        keyboard.add_hotkey('ctrl+alt+end', self.on_pause_key)
         self.start()
 
     def start(self):
@@ -21,6 +25,12 @@ class ObsAutoRecord():
             self.address,
             on_open=self.on_open,
             on_close=self.on_close)
+
+    def on_pause_key(self):
+        self.is_paused = not self.is_paused
+        self._on_state_change()
+        if self.timer is not None:
+            self.ping_status()
 
     def set_on_state_change(self, on_state_change):
         self.on_state_change = on_state_change
@@ -51,7 +61,7 @@ class ObsAutoRecord():
             if 'recording' in msg:
                 open_app = self.get_open_app()
                 folder = ObsUtils.get_folder()
-                if not msg['recording'] and open_app is not None:
+                if not msg['recording'] and open_app is not None and not self.is_paused:
                     if folder is not None:
                         rec_folder = os.path.join(folder, open_app).replace('\\', '/')
                         self.obs_web_socket.send(
@@ -61,7 +71,7 @@ class ObsAutoRecord():
                             error_callback=lambda msg: set_filename_formatting(open_app))
                     else:
                         set_filename_formatting(open_app)
-                elif msg['recording'] and open_app is None:
+                elif msg['recording'] and (open_app is None or self.is_paused):
                     self.obs_web_socket.send(
                         "StopRecording",
                         success_callback=lambda msg: change_folder_back())
@@ -78,4 +88,12 @@ class ObsAutoRecord():
 
     def _on_state_change(self):
         if self.on_state_change is not None:
-            self.on_state_change(self.obs_web_socket.is_connected())
+            self.on_state_change(self._get_state())
+
+    def _get_state(self):
+        if self.is_paused:
+            return ObsAutoRecordState.PAUSED
+        elif self.obs_web_socket.is_connected():
+            return ObsAutoRecordState.CONNECTED
+        else:
+            return ObsAutoRecordState.DISCONNECTED
