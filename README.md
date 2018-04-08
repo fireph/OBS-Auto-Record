@@ -13,12 +13,12 @@ Controls OBS to auto record specific games when they are running (works on Windo
 ### Windows
 Install [pywin32](https://github.com/mhammond/pywin32)
 ```
-pip3 install psutil pyinstaller websocket-client wmi
+pip3 install psutil pyinstaller websocket-client keyboard
 set PYTHONOPTIMIZE=2
-pyinstaller .\ObsAutoRecordWin.py --onefile --noconsole --icon=record_red.ico --name=ObsAutoRecord --add-data "record*.ico;."
+pyinstaller .\ObsAutoRecordWin.py --onefile --noconsole --icon=record_red.ico --name=ObsAutoRecord --add-data "*.ico;."
 ```
 ### Mac
 ```
-pip3 install psutil py2app rumps websocket-client
+pip3 install psutil py2app rumps websocket-client keyboard
 python3 ObsAutoRecordMacSetup.py py2app
 ```
