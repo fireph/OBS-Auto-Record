@@ -8,17 +8,15 @@
 #               http://www.brunningonline.net/simon/blog/archives/SysTrayIcon.py.html
 
 from ObsAutoRecord import ObsAutoRecord
+import ObsUtils
 import os
-import pythoncom
 import sys
-import win32api
-import win32con
+import win32api,win32con,win32process
 import win32gui_struct
 try:
     import winxpgui as win32gui
 except ImportError:
     import win32gui
-import wmi
 
 class SysTrayIcon(object):
     '''TODO'''
@@ -129,8 +127,9 @@ class SysTrayIcon(object):
         win32gui.Shell_NotifyIcon(message, self.notify_id)
 
     def update_from_state(self, state):
-        self.icon = get_resource_path('record_green.ico' if state else 'record_red.ico')
-        self.hover_text = 'OBS Auto Record ' + ('(connected)' if state else '(disconnected)')
+        title, icon = ObsUtils.get_title_and_icon_from_state(state)
+        self.hover_text = title
+        self.icon = get_resource_path(icon)
         self.refresh_icon()
 
     def restart(self, hwnd, msg, wparam, lparam):

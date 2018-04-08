@@ -6,6 +6,7 @@
 # Date        : 11 February 2018
 
 from ObsAutoRecord import ObsAutoRecord
+import ObsUtils
 import rumps
 
 if __name__ == "__main__":
@@ -14,7 +15,8 @@ if __name__ == "__main__":
     name_menu_item = rumps.MenuItem('OBS Auto Record')
     app.menu = [name_menu_item, None]
     def update_from_state(state):
-        app.icon = 'record_green.ico' if state else 'record_red.ico'
-        name_menu_item.title = 'OBS Auto Record ' + ('(connected)' if state else '(disconnected)')
+        title, icon = ObsUtils.get_title_and_icon_from_state(state)
+        name_menu_item.title = title
+        app.icon = icon
     obs_auto_record.set_on_state_change(update_from_state)
     app.run()

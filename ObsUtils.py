@@ -1,4 +1,5 @@
 import configparser
+from ObsAutoRecordState import ObsAutoRecordState
 import os
 import platform
 
@@ -44,22 +45,18 @@ def get_folder():
         return None
 
 def get_app_name_win(exe_path, fallback):
+    blacklisted_file_descriptions = {"TslGame"}
     try:
         import win32api
         language, codepage = win32api.GetFileVersionInfo(exe_path, '\\VarFileInfo\\Translation')[0]
-        string_file_info1 = u'\\StringFileInfo\\%04X%04X\\%s' % (language, codepage, "ProductName")
-        product_name = win32api.GetFileVersionInfo(exe_path, string_file_info1)
-        string_file_info2 = u'\\StringFileInfo\\%04X%04X\\%s' % (language, codepage, "FileDescription")
-        file_description = win32api.GetFileVersionInfo(exe_path, string_file_info2)
-        if product_name is not None and file_description is not None:
-            if file_description in product_name:
-                app_name = file_description
-            else:
-                app_name = product_name
-        elif product_name is not None:
-            app_name = product_name
-        elif file_description is not None:
+        string_file_info_desc = u'\\StringFileInfo\\%04X%04X\\%s' % (language, codepage, "FileDescription")
+        file_description = win32api.GetFileVersionInfo(exe_path, string_file_info_desc)
+        string_file_info_name = u'\\StringFileInfo\\%04X%04X\\%s' % (language, codepage, "ProductName")
+        product_name = win32api.GetFileVersionInfo(exe_path, string_file_info_name)
+        if isNotEmpty(file_description) and file_description not in blacklisted_file_descriptions:
             app_name = file_description
+        elif isNotEmpty(product_name):
+            app_name = product_name
         else:
             app_name = fallback
     except:
@@ -68,14 +65,33 @@ def get_app_name_win(exe_path, fallback):
 
 def get_app_name_from_process(proc):
     if platform.system() == 'Windows':
-        import pythoncom
-        import wmi
-        pythoncom.CoInitialize()
-        for wmi_process in wmi.WMI().Win32_Process([], ProcessId=proc.pid):
-            name = get_app_name_win(wmi_process.ExecutablePath, proc.name())
-            if name.endswith('.exe'):
-                return name[:-4]
-            else:
-                return name
+        import win32api,win32con,win32process
+        win32proc = win32api.OpenProcess(win32con.PROCESS_ALL_ACCESS, False, proc.pid)
+        procpath = win32process.GetModuleFileNameEx(win32proc, 0)
+        name = get_app_name_win(procpath, proc.name())
+        if name.endswith('.exe'):
+            return name[:-4]
+        else:
+            return name
     else:
         return proc.name()
+
+def get_title_and_icon_from_state(state):
+    title = 'OBS Auto Record ('
+    if state is ObsAutoRecordState.PAUSED:
+        icon = 'pause.ico'
+        title += 'paused'
+    elif state is ObsAutoRecordState.CONNECTED:
+        icon = 'record_green.ico'
+        title += 'connected'
+    elif state is ObsAutoRecordState.DISCONNECTED:
+        icon = 'record_red.ico'
+        title += 'disconnected'
+    else:
+        icon = 'warning.ico'
+        title += 'unknown state'
+    title += ')'
+    return title, icon
+
+def isNotEmpty(s):
+    return bool(s and s.strip())
