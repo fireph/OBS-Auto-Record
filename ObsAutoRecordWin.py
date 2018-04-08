@@ -2,8 +2,8 @@
 # Module      : ObsAutoRecordWin.py
 # Description : Windows System tray icon app that auto records apps/games in OBS.
 # Author      : Frederick Meyer
-# Version     : 1.2.0
-# Date        : 11 February 2018
+# Version     : 1.3.0
+# Date        : 8 April 2018
 # Notes       : System tray icon code based on Simon Brunning's SysTrayIcon.py
 #               http://www.brunningonline.net/simon/blog/archives/SysTrayIcon.py.html
 

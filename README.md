@@ -15,7 +15,7 @@ Install [pywin32](https://github.com/mhammond/pywin32)
 ```
 pip3 install psutil pyinstaller websocket-client keyboard
 set PYTHONOPTIMIZE=2
-pyinstaller .\ObsAutoRecordWin.py --onefile --noconsole --icon=record_red.ico --name=ObsAutoRecord --add-data "*.ico;."
+pyinstaller .\ObsAutoRecordWin.py --onefile --noconsole --version-file=file_version_info.txt --icon=record_red.ico --name=ObsAutoRecord --add-data "*.ico;."
 ```
 ### Mac
 ```
