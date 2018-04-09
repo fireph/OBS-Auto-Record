@@ -1,11 +1,13 @@
 import fnmatch
-import keyboard
-from ObsWebSocket import ObsWebSocket
 import os
-import psutil
 import threading
+
+import keyboard
+import psutil
+
 import ObsUtils
 from ObsAutoRecordState import ObsAutoRecordState
+from ObsWebSocket import ObsWebSocket
 
 class ObsAutoRecord():
     def __init__(self):

@@ -1,7 +1,7 @@
 import configparser
-from ObsAutoRecordState import ObsAutoRecordState
-import os
 import platform
+
+from ObsAutoRecordState import ObsAutoRecordState
 
 def get_apps_to_record():
     config = configparser.ConfigParser()
@@ -65,7 +65,7 @@ def get_app_name_win(exe_path, fallback):
 
 def get_app_name_from_process(proc):
     if platform.system() == 'Windows':
-        import win32api,win32con,win32process
+        import win32api, win32con, win32process
         win32proc = win32api.OpenProcess(win32con.PROCESS_ALL_ACCESS, False, proc.pid)
         procpath = win32process.GetModuleFileNameEx(win32proc, 0)
         name = get_app_name_win(procpath, proc.name())
