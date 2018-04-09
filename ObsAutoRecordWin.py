@@ -7,9 +7,13 @@
 
 import os
 
+import pkg_resources
+import win32con
 from infi.systray import SysTrayIcon
 
 import ObsUtils
+import win32api
+import win32process
 from ObsAutoRecord import ObsAutoRecord
 
 def get_resource_path(relative_path):
