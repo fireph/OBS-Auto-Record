@@ -2,6 +2,7 @@ import json
 import threading
 import time
 import uuid
+
 import websocket
 
 class ObsWebSocket():
