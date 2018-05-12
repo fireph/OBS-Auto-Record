@@ -1,6 +1,7 @@
 import fnmatch
 import os
 import threading
+import time
 
 import keyboard
 import psutil
@@ -19,6 +20,7 @@ class ObsAutoRecord():
         self.on_state_change = None
         self.timer = None
         self.is_paused = False
+        self.pause_end_time = -1
         keyboard.add_hotkey('ctrl+alt+end', self.on_pause_key)
         self.start()
 
@@ -28,8 +30,12 @@ class ObsAutoRecord():
             on_open=self.on_open,
             on_close=self.on_close)
 
-    def on_pause_key(self):
+    def on_pause_key(self, time=-1):
         self.is_paused = not self.is_paused
+        if self.is_paused:
+            self.pause_end_time = time
+        else:
+            self.pause_end_time = -1
         self._on_state_change()
         if self.timer is not None:
             self.ping_status()
@@ -46,6 +52,11 @@ class ObsAutoRecord():
         self._on_state_change()
 
     def ping_status(self):
+        if self.pause_end_time > 0 and self.is_paused:
+            if time.time() >= self.pause_end_time:
+                self.on_pause_key()
+            else:
+                self._on_state_change()
         def start_recording():
             self.obs_web_socket.send("StartRecording")
         def set_filename_formatting(app_name):
