@@ -5,6 +5,8 @@
 #include <QMessageBox>
 #include "window.h"
 
+#include "easywsclient/easywsclient.hpp"
+
 int main(int argc, char *argv[])
 {
     Q_INIT_RESOURCE(systray);

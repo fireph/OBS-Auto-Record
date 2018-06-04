@@ -5,7 +5,3 @@ RESOURCES     = systray.qrc
 
 QT += widgets
 requires(qtConfig(combobox))
-
-# install
-target.path = /Users/fmeyer/Downloads/systray
-INSTALLS += target
