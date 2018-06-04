@@ -1,0 +1,8 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource prefix="/">
+   <file>images/pause.ico</file>
+   <file>images/record_green.ico</file>
+   <file>images/record_red.ico</file>
+   <file>images/warning.ico</file>
+</qresource>
+</RCC>
