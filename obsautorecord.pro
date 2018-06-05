@@ -1,7 +1,7 @@
 HEADERS       = window.h
 SOURCES       = main.cpp \
                 window.cpp
-RESOURCES     = systray.qrc
+RESOURCES     = obsautorecord.qrc
 
-QT += widgets
+QT += websockets widgets
 requires(qtConfig(combobox))

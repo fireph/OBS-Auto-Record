@@ -5,16 +5,14 @@
 #include <QMessageBox>
 #include "window.h"
 
-#include "easywsclient/easywsclient.hpp"
-
 int main(int argc, char *argv[])
 {
-    Q_INIT_RESOURCE(systray);
+    Q_INIT_RESOURCE(obsautorecord);
 
     QApplication app(argc, argv);
 
     if (!QSystemTrayIcon::isSystemTrayAvailable()) {
-        QMessageBox::critical(0, QObject::tr("Systray"),
+        QMessageBox::critical(0, QObject::tr("OBS Auto Record"),
                               QObject::tr("I couldn't detect any system tray "
                                           "on this system."));
         return 1;
@@ -23,6 +21,7 @@ int main(int argc, char *argv[])
 
     Window window;
     window.show();
+
     return app.exec();
 }
 
@@ -41,7 +40,6 @@ int main(int argc, char *argv[])
 
     label->show();
     qDebug() << text;
-
     app.exec();
 }
 

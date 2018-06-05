@@ -42,7 +42,7 @@ Window::Window()
     iconComboBox->setCurrentIndex(1);
     trayIcon->show();
 
-    setWindowTitle(tr("Systray"));
+    setWindowTitle(tr("OBS Auto Record"));
     resize(400, 300);
 }
 
@@ -62,7 +62,7 @@ void Window::closeEvent(QCloseEvent *event)
     }
 #endif
     if (trayIcon->isVisible()) {
-        QMessageBox::information(this, tr("Systray"),
+        QMessageBox::information(this, tr("OBS Auto Record"),
                                  tr("The program will keep running in the "
                                     "system tray. To terminate the program, "
                                     "choose <b>Quit</b> in the context menu "
@@ -113,7 +113,7 @@ void Window::showMessage()
 
 void Window::messageClicked()
 {
-    QMessageBox::information(0, tr("Systray"),
+    QMessageBox::information(0, tr("OBS Auto Record"),
                              tr("Sorry, I already gave what help I could.\n"
                                 "Maybe you should try asking a human?"));
 }
