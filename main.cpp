@@ -4,6 +4,7 @@
 
 #include <QMessageBox>
 #include "window.h"
+#include "echoclient.h"
 
 int main(int argc, char *argv[])
 {
@@ -21,6 +22,9 @@ int main(int argc, char *argv[])
 
     Window window;
     window.show();
+
+    EchoClient client(QUrl(QStringLiteral("ws://localhost:8126/foo")));
+    QObject::connect(&client, &EchoClient::closed, &app, &QApplication::quit);
 
     return app.exec();
 }
