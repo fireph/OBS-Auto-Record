@@ -37,3 +37,7 @@ moc_*
 .qmake.stash
 
 Makefile
+
+Thumbs.db
+
+dist/
