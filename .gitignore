@@ -37,6 +37,8 @@ moc_*
 .qmake.stash
 
 Makefile
+Makefile.Debug
+Makefile.Release
 
 Thumbs.db
 
