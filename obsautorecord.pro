@@ -1,9 +1,11 @@
 HEADERS       = window.h \
-                echoclient.h
+                ObsWebSocket.h
 SOURCES       = main.cpp \
                 window.cpp \
-                echoclient.cpp
+                ObsWebSocket.cpp
 RESOURCES     = obsautorecord.qrc
+
+CONFIG += console
 
 QT += websockets widgets
 requires(qtConfig(combobox))
