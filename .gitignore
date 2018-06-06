@@ -31,6 +31,8 @@
 *.out
 *.app
 
+*.pro.user
+
 qrc_*
 moc_*
 
