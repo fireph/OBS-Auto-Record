@@ -12,19 +12,20 @@ ObsWebSocket::ObsWebSocket(const QUrl &url, bool debug, QObject *parent) :
     startWebsocket();
 }
 
-void ObsWebSocket::sendRequest(QString requestType)
+void ObsWebSocket::sendRequest(QString requestType, std::function<void(QJsonObject)>&& callback)
 {
     QJsonObject data {};
-    sendRequest(requestType, data);
+    sendRequest(requestType, data, callback);
 }
 
-void ObsWebSocket::sendRequest(QString requestType, QJsonObject data)
+void ObsWebSocket::sendRequest(QString requestType, QJsonObject data, std::function<void(QJsonObject)>&& callback)
 {
     m_msgid++;
+    QString messageId = QString::number(m_msgid);
     QJsonObject object
     {
         {"request-type", requestType},
-        {"message-id", QString::number(m_msgid)}
+        {"message-id", messageId}
     };
     foreach(const QString& key, data.keys()) {
         QJsonValue value = data.value(key);
