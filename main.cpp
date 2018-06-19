@@ -3,8 +3,9 @@
 #ifndef QT_NO_SYSTEMTRAYICON
 
 #include <QMessageBox>
+#include <QtCore/QObject>
 #include "window.h"
-#include "ObsWebSocket.h"
+#include "ObsAutoRecord.h"
 
 int main(int argc, char *argv[])
 {
@@ -23,7 +24,7 @@ int main(int argc, char *argv[])
     Window window;
     window.show();
 
-    ObsWebSocket client(QUrl(QStringLiteral("ws://localhost:4444")), true);
+    ObsAutoRecord oar(QUrl(QStringLiteral("ws://localhost:4444")), true);
 
     return app.exec();
 }

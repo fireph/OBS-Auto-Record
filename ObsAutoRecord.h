@@ -1,8 +1,9 @@
-#ifndef OBSWEBSOCKET_H
-#define OBSWEBSOCKET_H
+#ifndef OBSAUTORECORD_H
+#define OBSAUTORECORD_H
 
 #include <QJsonObject>
 #include <QtCore/QObject>
+#include "ObsWebSocket.h"
 
 class ObsAutoRecord : public QObject
 {
@@ -10,18 +11,20 @@ class ObsAutoRecord : public QObject
 public:
     explicit ObsAutoRecord(const QUrl &url, bool debug = false, QObject *parent = nullptr);
 
-private Q_SLOTS:
-    void onConnected();
-    void onClosed();
-    void onTextMessageReceived(QString message);
-    void startWebsocket();
-    QString jsonToString(QJsonObject json);
+private slots:
+    void pingStatus();
+    void onStatus(QJsonObject msg);
+    // void startRecording(); 
+    // void setFilenameFormatting(QString appName);
+    // void changeFolderBack();
+    
 
 private:
     ObsWebSocket m_obsWebSocket;
     QUrl m_url;
     bool m_debug;
     int m_msgid = 0;
+    std::string defaultFilenameFormatting = "%CCYY-%MM-%DD %hh-%mm-%ss";
 };
 
-#endif // OBSWEBSOCKET_H
+#endif // OBSAUTORECORD_H
