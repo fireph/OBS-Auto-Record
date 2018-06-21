@@ -1,22 +1,37 @@
 #include "ObsAutoRecord.h"
+#include <set>
 #include <QJsonDocument>
 #include <QtCore/QDebug>
-#include <QTimer>
 
 QT_USE_NAMESPACE
 
-ObsAutoRecord::ObsAutoRecord(const QUrl &url, bool debug, QObject *parent) :
+ObsAutoRecord::ObsAutoRecord(const QUrl &url, const int interval, bool debug, QObject *parent) :
     QObject(parent),
     m_obsWebSocket(url, debug, this),
     m_url(url),
     m_debug(debug)
 {
+    appsToLookFor.insert("destiny2.exe");
+    appsToLookFor.insert("HeroesOfTheStorm64.exe");
+    appsToLookFor.insert("Wow64.exe");
+
     QObject::connect(&m_obsWebSocket, SIGNAL(onResponse(QJsonObject)),
                      this, SLOT(onStatus(QJsonObject)));
-    QTimer *timer = new QTimer;
-    timer->setInterval(5000);
+    timer = new QTimer;
+    timer->setInterval(interval * 1000);
     timer->start();
     connect(timer, SIGNAL(timeout()), this, SLOT(pingStatus()));
+}
+
+void ObsAutoRecord::setAddress(const QUrl &url)
+{
+    m_url = url;
+    m_obsWebSocket.setAddress(m_url);
+}
+
+void ObsAutoRecord::setInterval(const int interval)
+{
+    timer->setInterval(interval * 1000);
 }
 
 void ObsAutoRecord::pingStatus()
@@ -67,8 +82,6 @@ void ObsAutoRecord::onStatus(QJsonObject msg)
 {
     if (msg.contains("recording")) {
         bool recording = msg.value("recording").toBool();
-        std::set<std::string> appsToLookFor;
-        appsToLookFor.insert("chrome.exe");
         std::string openApp = m_obsUtils.getOpenApp(appsToLookFor);
         // At this point, titles if fully populated and could be displayed, e.g.:
         if (!openApp.empty()) {

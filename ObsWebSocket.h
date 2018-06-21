@@ -10,6 +10,7 @@ class ObsWebSocket : public QObject
     Q_OBJECT
 public:
     explicit ObsWebSocket(const QUrl &url, bool debug = false, QObject *parent = nullptr);
+    void setAddress(const QUrl &url);
     void sendRequest(QString requestType, int msgId);
     void sendRequest(QString requestType, int msgId, QJsonObject data);
     QString jsonToString(const QJsonObject& json);

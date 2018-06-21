@@ -4,11 +4,12 @@ ObsUtils::ObsUtils()
 {
 }
 
-#ifdef WIN32
 std::string ObsUtils::getOpenApp(std::set<std::string> exes)
 {
     appsOpen.clear();
+#ifdef WIN32
     EnumWindows(ObsUtils::EnumWindowsProc, reinterpret_cast<LPARAM>(&appsOpen));
+#endif
     for (auto exe : exes) {
         std::unordered_map<std::string, std::string>::iterator it = appsOpen.find(exe);
         if (it != appsOpen.end()) {
@@ -18,6 +19,7 @@ std::string ObsUtils::getOpenApp(std::set<std::string> exes)
     return "";
 }
 
+#ifdef WIN32
 BOOL ObsUtils::GetTranslationId(LPVOID lpData, UINT unBlockSize, WORD wLangId, DWORD &dwId, BOOL bPrimaryEnough/*= FALSE*/)
 {
     LPWORD lpwData;
