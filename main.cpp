@@ -5,7 +5,6 @@
 #include <QMessageBox>
 #include <QtCore/QObject>
 #include "window.h"
-#include "ObsAutoRecord.h"
 
 int main(int argc, char *argv[])
 {
@@ -22,9 +21,7 @@ int main(int argc, char *argv[])
     QApplication::setQuitOnLastWindowClosed(false);
 
     Window window;
-    window.show();
-
-    ObsAutoRecord oar(QUrl(QStringLiteral("ws://localhost:4444")), true);
+    // window.show();
 
     return app.exec();
 }

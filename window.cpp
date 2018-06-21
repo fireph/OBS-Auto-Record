@@ -2,6 +2,7 @@
 
 #ifndef QT_NO_SYSTEMTRAYICON
 
+#include <QtCore/QObject>
 #include <QAction>
 #include <QCheckBox>
 #include <QComboBox>
@@ -14,32 +15,34 @@
 #include <QPushButton>
 #include <QSpinBox>
 #include <QTextEdit>
+#include <QtGlobal>
 #include <QVBoxLayout>
 #include <QMessageBox>
 
-Window::Window()
+Window::Window() :
+    settings("DungFu", "OBS Auto Record")
 {
-    createIconGroupBox();
-    createMessageGroupBox();
+    oar = new ObsAutoRecord(
+        QUrl(settings.value("address", DEFAULT_ADDRESS).toString()),
+        settings.value("interval", DEFAULT_INTERVAL).toInt(),
+        true,
+        this);
 
-    iconLabel->setMinimumWidth(durationLabel->sizeHint().width());
+    createGeneralGroupBox();
 
     createActions();
     createTrayIcon();
 
-    connect(showMessageButton, &QAbstractButton::clicked, this, &Window::showMessage);
-    connect(showIconCheckBox, &QAbstractButton::toggled, trayIcon, &QSystemTrayIcon::setVisible);
-    connect(iconComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
-            this, &Window::setIcon);
-    connect(trayIcon, &QSystemTrayIcon::messageClicked, this, &Window::messageClicked);
+    connect(intervalSpinBox, QOverload<int>::of(&QSpinBox::valueChanged),
+            this, &Window::intervalChanged);
+    connect(addressEdit, &QLineEdit::textChanged, this, &Window::addressChanged);
     connect(trayIcon, &QSystemTrayIcon::activated, this, &Window::iconActivated);
 
     QVBoxLayout *mainLayout = new QVBoxLayout;
-    mainLayout->addWidget(iconGroupBox);
-    mainLayout->addWidget(messageGroupBox);
+    mainLayout->addWidget(generalGroupBox);
     setLayout(mainLayout);
 
-    iconComboBox->setCurrentIndex(1);
+    trayIcon->setIcon(QIcon(":/images/record_red.ico"));
     trayIcon->show();
 
     setWindowTitle(tr("OBS Auto Record"));
@@ -48,9 +51,7 @@ Window::Window()
 
 void Window::setVisible(bool visible)
 {
-    minimizeAction->setEnabled(visible);
-    maximizeAction->setEnabled(!isMaximized());
-    restoreAction->setEnabled(isMaximized() || !visible);
+    showAction->setEnabled(isMaximized() || !visible);
     QDialog::setVisible(visible);
 }
 
@@ -62,120 +63,48 @@ void Window::closeEvent(QCloseEvent *event)
     }
 #endif
     if (trayIcon->isVisible()) {
-        QMessageBox::information(this, tr("OBS Auto Record"),
-                                 tr("The program will keep running in the "
-                                    "system tray. To terminate the program, "
-                                    "choose <b>Quit</b> in the context menu "
-                                    "of the system tray entry."));
         hide();
         event->ignore();
     }
 }
 
-void Window::setIcon(int index)
-{
-    QIcon icon = iconComboBox->itemIcon(index);
-    trayIcon->setIcon(icon);
-    setWindowIcon(icon);
-
-    trayIcon->setToolTip(iconComboBox->itemText(index));
-}
-
 void Window::iconActivated(QSystemTrayIcon::ActivationReason reason)
 {
     switch (reason) {
-    case QSystemTrayIcon::Trigger:
     case QSystemTrayIcon::DoubleClick:
-        iconComboBox->setCurrentIndex((iconComboBox->currentIndex() + 1) % iconComboBox->count());
-        break;
-    case QSystemTrayIcon::MiddleClick:
-        showMessage();
+        setVisible(!isVisible());
         break;
     default:
         ;
     }
 }
 
-void Window::showMessage()
+void Window::intervalChanged()
 {
-    showIconCheckBox->setChecked(true);
-    QSystemTrayIcon::MessageIcon msgIcon = QSystemTrayIcon::MessageIcon(
-            typeComboBox->itemData(typeComboBox->currentIndex()).toInt());
-    if (msgIcon == QSystemTrayIcon::NoIcon) {
-        QIcon icon(iconComboBox->itemIcon(iconComboBox->currentIndex()));
-        trayIcon->showMessage(titleEdit->text(), bodyEdit->toPlainText(), icon,
-                          durationSpinBox->value() * 1000);
-    } else {
-        trayIcon->showMessage(titleEdit->text(), bodyEdit->toPlainText(), msgIcon,
-                          durationSpinBox->value() * 1000);
-    }
+    settings.setValue("interval", intervalSpinBox->value());
+    oar->setInterval(intervalSpinBox->value());
 }
 
-void Window::messageClicked()
+void Window::addressChanged()
 {
-    QMessageBox::information(0, tr("OBS Auto Record"),
-                             tr("Sorry, I already gave what help I could.\n"
-                                "Maybe you should try asking a human?"));
+    settings.setValue("address", addressEdit->text());
+    oar->setAddress(QUrl(addressEdit->text()));
 }
 
-void Window::createIconGroupBox()
+void Window::createGeneralGroupBox()
 {
-    iconGroupBox = new QGroupBox(tr("Tray Icon"));
+    generalGroupBox = new QGroupBox(tr("General Settings"));
 
-    iconLabel = new QLabel("Icon:");
+    intervalLabel = new QLabel(tr("Interval:"));
 
-    iconComboBox = new QComboBox;
-    iconComboBox->addItem(QIcon(":/images/pause.ico"), tr("Pause"));
-    iconComboBox->addItem(QIcon(":/images/record_green.ico"), tr("Green"));
-    iconComboBox->addItem(QIcon(":/images/record_red.ico"), tr("Red"));
-    iconComboBox->addItem(QIcon(":/images/warning.ico"), tr("Warning"));
+    intervalSpinBox = new QSpinBox;
+    intervalSpinBox->setRange(5, 60);
+    intervalSpinBox->setSuffix(" s");
+    intervalSpinBox->setValue(settings.value("interval", DEFAULT_INTERVAL).toInt());
 
-    showIconCheckBox = new QCheckBox(tr("Show icon"));
-    showIconCheckBox->setChecked(true);
+    addressLabel = new QLabel(tr("Address:"));
 
-    QHBoxLayout *iconLayout = new QHBoxLayout;
-    iconLayout->addWidget(iconLabel);
-    iconLayout->addWidget(iconComboBox);
-    iconLayout->addStretch();
-    iconLayout->addWidget(showIconCheckBox);
-    iconGroupBox->setLayout(iconLayout);
-}
-
-void Window::createMessageGroupBox()
-{
-    messageGroupBox = new QGroupBox(tr("Balloon Message"));
-
-    typeLabel = new QLabel(tr("Type:"));
-
-    typeComboBox = new QComboBox;
-    typeComboBox->addItem(tr("None"), QSystemTrayIcon::NoIcon);
-    typeComboBox->addItem(style()->standardIcon(
-            QStyle::SP_MessageBoxInformation), tr("Information"),
-            QSystemTrayIcon::Information);
-    typeComboBox->addItem(style()->standardIcon(
-            QStyle::SP_MessageBoxWarning), tr("Warning"),
-            QSystemTrayIcon::Warning);
-    typeComboBox->addItem(style()->standardIcon(
-            QStyle::SP_MessageBoxCritical), tr("Critical"),
-            QSystemTrayIcon::Critical);
-    typeComboBox->addItem(QIcon(), tr("Custom icon"),
-            QSystemTrayIcon::NoIcon);
-    typeComboBox->setCurrentIndex(1);
-
-    durationLabel = new QLabel(tr("Duration:"));
-
-    durationSpinBox = new QSpinBox;
-    durationSpinBox->setRange(5, 60);
-    durationSpinBox->setSuffix(" s");
-    durationSpinBox->setValue(15);
-
-    durationWarningLabel = new QLabel(tr("(some systems might ignore this "
-                                         "hint)"));
-    durationWarningLabel->setIndent(10);
-
-    titleLabel = new QLabel(tr("Title:"));
-
-    titleEdit = new QLineEdit(tr("Cannot connect to network"));
+    addressEdit = new QLineEdit(settings.value("address", DEFAULT_ADDRESS).toString());
 
     bodyLabel = new QLabel(tr("Body:"));
 
@@ -183,35 +112,22 @@ void Window::createMessageGroupBox()
     bodyEdit->setPlainText(tr("Don't believe me. Honestly, I don't have a "
                               "clue.\nClick this balloon for details."));
 
-    showMessageButton = new QPushButton(tr("Show Message"));
-    showMessageButton->setDefault(true);
-
     QGridLayout *messageLayout = new QGridLayout;
-    messageLayout->addWidget(typeLabel, 0, 0);
-    messageLayout->addWidget(typeComboBox, 0, 1, 1, 2);
-    messageLayout->addWidget(durationLabel, 1, 0);
-    messageLayout->addWidget(durationSpinBox, 1, 1);
-    messageLayout->addWidget(durationWarningLabel, 1, 2, 1, 3);
-    messageLayout->addWidget(titleLabel, 2, 0);
-    messageLayout->addWidget(titleEdit, 2, 1, 1, 4);
+    messageLayout->addWidget(intervalLabel, 1, 0);
+    messageLayout->addWidget(intervalSpinBox, 1, 1);
+    messageLayout->addWidget(addressLabel, 2, 0);
+    messageLayout->addWidget(addressEdit, 2, 1, 1, 4);
     messageLayout->addWidget(bodyLabel, 3, 0);
     messageLayout->addWidget(bodyEdit, 3, 1, 2, 4);
-    messageLayout->addWidget(showMessageButton, 5, 4);
     messageLayout->setColumnStretch(3, 1);
     messageLayout->setRowStretch(4, 1);
-    messageGroupBox->setLayout(messageLayout);
+    generalGroupBox->setLayout(messageLayout);
 }
 
 void Window::createActions()
 {
-    minimizeAction = new QAction(tr("Mi&nimize"), this);
-    connect(minimizeAction, &QAction::triggered, this, &QWidget::hide);
-
-    maximizeAction = new QAction(tr("Ma&ximize"), this);
-    connect(maximizeAction, &QAction::triggered, this, &QWidget::showMaximized);
-
-    restoreAction = new QAction(tr("&Restore"), this);
-    connect(restoreAction, &QAction::triggered, this, &QWidget::showNormal);
+    showAction = new QAction(tr("&Show"), this);
+    connect(showAction, &QAction::triggered, this, &QWidget::showNormal);
 
     quitAction = new QAction(tr("&Quit"), this);
     connect(quitAction, &QAction::triggered, qApp, &QCoreApplication::quit);
@@ -220,9 +136,7 @@ void Window::createActions()
 void Window::createTrayIcon()
 {
     trayIconMenu = new QMenu(this);
-    trayIconMenu->addAction(minimizeAction);
-    trayIconMenu->addAction(maximizeAction);
-    trayIconMenu->addAction(restoreAction);
+    trayIconMenu->addAction(showAction);
     trayIconMenu->addSeparator();
     trayIconMenu->addAction(quitAction);
 

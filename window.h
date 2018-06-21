@@ -6,6 +6,8 @@
 #ifndef QT_NO_SYSTEMTRAYICON
 
 #include <QDialog>
+#include <QSettings>
+#include "ObsAutoRecord.h"
 
 class QAction;
 class QCheckBox;
@@ -17,6 +19,7 @@ class QMenu;
 class QPushButton;
 class QSpinBox;
 class QTextEdit;
+class ObsAutoRecord;
 
 class Window : public QDialog
 {
@@ -31,41 +34,35 @@ protected:
     void closeEvent(QCloseEvent *event) override;
 
 private slots:
-    void setIcon(int index);
     void iconActivated(QSystemTrayIcon::ActivationReason reason);
-    void showMessage();
-    void messageClicked();
+    void intervalChanged();
+    void addressChanged();
 
 private:
-    void createIconGroupBox();
-    void createMessageGroupBox();
+    void createGeneralGroupBox();
     void createActions();
     void createTrayIcon();
 
-    QGroupBox *iconGroupBox;
-    QLabel *iconLabel;
-    QComboBox *iconComboBox;
-    QCheckBox *showIconCheckBox;
+    QSettings settings;
 
-    QGroupBox *messageGroupBox;
-    QLabel *typeLabel;
-    QLabel *durationLabel;
-    QLabel *durationWarningLabel;
-    QLabel *titleLabel;
+    ObsAutoRecord *oar;
+
+    QGroupBox *generalGroupBox;
+    QLabel *intervalLabel;
+    QLabel *addressLabel;
     QLabel *bodyLabel;
-    QComboBox *typeComboBox;
-    QSpinBox *durationSpinBox;
-    QLineEdit *titleEdit;
+    QSpinBox *intervalSpinBox;
+    QLineEdit *addressEdit;
     QTextEdit *bodyEdit;
-    QPushButton *showMessageButton;
 
-    QAction *minimizeAction;
-    QAction *maximizeAction;
-    QAction *restoreAction;
+    QAction *showAction;
     QAction *quitAction;
 
     QSystemTrayIcon *trayIcon;
     QMenu *trayIconMenu;
+
+    const int DEFAULT_INTERVAL = 15;
+    const QString DEFAULT_ADDRESS = "ws://localhost:4444";
 };
 
 #endif // QT_NO_SYSTEMTRAYICON

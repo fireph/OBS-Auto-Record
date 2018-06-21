@@ -12,6 +12,14 @@ ObsWebSocket::ObsWebSocket(const QUrl &url, bool debug, QObject *parent) :
     startWebsocket();
 }
 
+void ObsWebSocket::setAddress(const QUrl &url)
+{
+    if (m_url != url) {
+        m_url = url;
+        m_webSocket.close();
+    }
+}
+
 void ObsWebSocket::sendRequest(QString requestType, int msgId)
 {
     QJsonObject data {};
