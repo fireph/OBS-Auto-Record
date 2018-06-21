@@ -9,7 +9,7 @@ RESOURCES     = obsautorecord.qrc
 
 CONFIG += console
 
-msvc: LIBS += -luser32
+msvc: LIBS += -luser32 -lVersion
 
 QT += websockets widgets
 requires(qtConfig(combobox))

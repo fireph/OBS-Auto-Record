@@ -1,8 +1,8 @@
 #ifndef OBSAUTORECORD_H
 #define OBSAUTORECORD_H
 
-#include <set>
 #include <string>
+#include <unordered_map>
 #include <windows.h>
 #include <stdio.h>
 #include <QJsonObject>
@@ -16,6 +16,7 @@ public:
     explicit ObsAutoRecord(const QUrl &url, bool debug = false, QObject *parent = nullptr);
 
 private:
+    static BOOL GetTranslationId(LPVOID lpData, UINT unBlockSize, WORD wLangId, DWORD &dwId, BOOL bPrimaryEnough = FALSE);
     static BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam);
 
 private slots:
@@ -32,7 +33,7 @@ private:
     bool m_debug;
     int m_msgid = 0;
     std::string defaultFilenameFormatting = "%CCYY-%MM-%DD %hh-%mm-%ss";
-    std::set<std::string> filenamesOpen;
+    std::unordered_map<std::string, std::string> appsOpen;
 };
 
 #endif // OBSAUTORECORD_H

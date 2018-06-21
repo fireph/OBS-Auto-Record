@@ -19,6 +19,33 @@ ObsAutoRecord::ObsAutoRecord(const QUrl &url, bool debug, QObject *parent) :
     connect(timer, SIGNAL(timeout()), this, SLOT(pingStatus()));
 }
 
+BOOL ObsAutoRecord::GetTranslationId(LPVOID lpData, UINT unBlockSize, WORD wLangId, DWORD &dwId, BOOL bPrimaryEnough/*= FALSE*/)
+{
+    LPWORD lpwData;
+    for (lpwData = (LPWORD)lpData; (LPBYTE)lpwData < ((LPBYTE)lpData) + unBlockSize; lpwData += 2)
+    {
+        if (*lpwData == wLangId)
+        {
+            dwId = *((DWORD*)lpwData);
+            return TRUE;
+        }
+    }
+
+    if (!bPrimaryEnough)
+        return FALSE;
+
+    for (lpwData = (LPWORD)lpData; (LPBYTE)lpwData < ((LPBYTE)lpData) + unBlockSize; lpwData += 2)
+    {
+        if (((*lpwData) & 0x00FF) == (wLangId & 0x00FF))
+        {
+            dwId = *((DWORD*)lpwData);
+            return TRUE;
+        }
+    }
+
+    return FALSE;
+}
+
 BOOL CALLBACK ObsAutoRecord::EnumWindowsProc(HWND hwnd, LPARAM lParam)
 {
     if ((!IsWindowVisible(hwnd) && !IsIconic(hwnd))) {
@@ -34,33 +61,33 @@ BOOL CALLBACK ObsAutoRecord::EnumWindowsProc(HWND hwnd, LPARAM lParam)
     DWORD exe_size = 1024;
     CHAR exe[1024];
     QueryFullProcessImageNameA(hProcess, 0, exe, &exe_size);
-    std::set<std::string>& filenames =
-        *reinterpret_cast<std::set<std::string>*>(lParam);
+    std::unordered_map<std::string, std::string>& appsOpen =
+        *reinterpret_cast<std::unordered_map<std::string, std::string>*>(lParam);
     std::string filename(&exe[0]);
-    filenames.insert(filename);
+    filename = filename.substr(filename.find_last_of("\\") + 1);
     CloseHandle(hProcess);
 
-    DWORD dwHandle, dwFileVersionInfoSize = GetFileVersionInfoSizeA(exe, &dwHandle);
-    if (dwFileVersionInfoSize == 0)
+    DWORD dwHandle;
+    DWORD dwLen = GetFileVersionInfoSizeA(exe, &dwHandle);
+    if (dwLen == 0)
         return TRUE;
-    std::vector<unsigned char> buf(dwFileVersionInfoSize);
-    if (!GetFileVersionInfoA(exe, dwHandle, dwFileVersionInfoSize, &buf[0]))
+    std::vector<unsigned char> data(dwLen);
+    if (!GetFileVersionInfoA(exe, dwHandle, dwLen, &data[0]))
         return TRUE;
 
     // catch default information
+    VS_FIXEDFILEINFO fileInfo;
     LPVOID lpInfo;
     UINT unInfoLen;
-    if (VerQueryValue(lpData, _T("\\"), &lpInfo, &unInfoLen))
+    if (VerQueryValueA(&data[0], "\\", &lpInfo, &unInfoLen))
     {
-        //ASSERT(unInfoLen == sizeof(m_FileInfo));
-        if (unInfoLen == sizeof(m_FileInfo))
-            memcpy(&m_FileInfo, lpInfo, unInfoLen);
+        memcpy(&fileInfo, lpInfo, unInfoLen);
     }
 
     // find best matching language and codepage
-    VerQueryValue(lpData, _T("\\VarFileInfo\\Translation"), &lpInfo, &unInfoLen);
+    VerQueryValueA(&data[0], "\\VarFileInfo\\Translation", &lpInfo, &unInfoLen);
 
-    DWORD   dwLangCode = 0;
+    DWORD dwLangCode = 0;
     if (!GetTranslationId(lpInfo, unInfoLen, GetUserDefaultLangID(), dwLangCode, FALSE))
     {
         if (!GetTranslationId(lpInfo, unInfoLen, GetUserDefaultLangID(), dwLangCode, TRUE))
@@ -74,22 +101,20 @@ BOOL CALLBACK ObsAutoRecord::EnumWindowsProc(HWND hwnd, LPARAM lParam)
         }
     }
 
-    stlString   strSubBlock;
-    TCHAR buf[1024];
-    _stprintf(buf, _T("\\StringFileInfo\\%04X%04X\\"), dwLangCode & 0x0000FFFF, (dwLangCode & 0xFFFF0000) >> 16);
-    strSubBlock = buf;
-
-
-    // catch string table
-    stlString sBuf;
-
-    sBuf.clear();
-    sBuf = strSubBlock;
-    sBuf += _T("FileDescription");
-    if (VerQueryValue(lpData, sBuf.c_str(), &lpInfo, &unInfoLen))
-        std::string filename(&exe[0]);
-        filenames.insert(filename);
-        m_strFileDescription = std::string(lpInfo);
+    CHAR buffer[1024];
+    std::sprintf(buffer, "\\StringFileInfo\\%04X%04X\\FileDescription", dwLangCode & 0x0000FFFF, (dwLangCode & 0xFFFF0000) >> 16);
+    VerQueryValueA(&data[0], buffer, &lpInfo, &unInfoLen);
+    std::string fileDescription = std::string((char*)lpInfo);
+    if (!fileDescription.empty()) {
+        appsOpen.insert_or_assign(filename, fileDescription);
+    } else {
+        std::sprintf(buffer, "\\StringFileInfo\\%04X%04X\\ProductName", dwLangCode & 0x0000FFFF, (dwLangCode & 0xFFFF0000) >> 16);
+        VerQueryValueA(&data[0], buffer, &lpInfo, &unInfoLen);
+        std::string productName = std::string((char*)lpInfo);
+        if (!productName.empty()) {
+            appsOpen.insert_or_assign(filename, productName);
+        }
+    }
 
     return TRUE;
 }
@@ -142,13 +167,16 @@ void ObsAutoRecord::onStatus(QJsonObject msg)
 {
     if (msg.contains("recording")) {
         bool recording = msg.value("recording").toBool();
-        filenamesOpen.clear();
-        EnumWindows(ObsAutoRecord::EnumWindowsProc, reinterpret_cast<LPARAM>(&filenamesOpen));
+        appsOpen.clear();
+        EnumWindows(ObsAutoRecord::EnumWindowsProc, reinterpret_cast<LPARAM>(&appsOpen));
         // At this point, titles if fully populated and could be displayed, e.g.:
-        qDebug() << "-----------------------------------" << endl;
-        for ( const auto& filename : filenamesOpen )
-            if (m_debug)
-                qDebug() << "Filename: " << QString::fromStdString(filename);
+        if (m_debug) {
+            qDebug() << "-----------------------------------" << endl;
+            for (auto elem : appsOpen)
+            {
+                qDebug() << "App: " << QString::fromStdString(elem.first + ", " + elem.second);
+            }
+        }
         // open_app = ""
         // std::string folder = "Test folder"
         // if (!recording && open_app is not None) {
