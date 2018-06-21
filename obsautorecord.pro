@@ -1,9 +1,11 @@
 HEADERS       = window.h \
                 ObsWebSocket.h \
+                ObsUtils.h \
                 ObsAutoRecord.h
 SOURCES       = main.cpp \
                 window.cpp \
                 ObsWebSocket.cpp \
+                ObsUtils.cpp \
                 ObsAutoRecord.cpp
 RESOURCES     = obsautorecord.qrc
 
