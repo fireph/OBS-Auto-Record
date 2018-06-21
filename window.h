@@ -19,7 +19,6 @@ class QMenu;
 class QPushButton;
 class QSpinBox;
 class QTextEdit;
-class ObsAutoRecord;
 
 class Window : public QDialog
 {
