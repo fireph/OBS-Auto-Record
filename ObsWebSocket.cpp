@@ -102,7 +102,7 @@ void ObsWebSocket::onMessageReceived(QString message)
 {
     emit onResponse(stringToJson(message));
     if (m_debug)
-        qDebug() << "Message received:" << message;
+        qDebug().noquote() << "Message received:" << message;
 }
 
 void ObsWebSocket::startWebsocket()
