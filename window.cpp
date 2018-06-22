@@ -23,6 +23,8 @@
 #include <QListWidgetItem>
 #include <QFileInfo>
 #include <QFileSystemModel>
+#include <QBuffer>
+#include <QByteArray>
 
 Window::Window() :
     settings("DungFu", "OBS Auto Record")
@@ -31,6 +33,7 @@ Window::Window() :
         QUrl(settings.value("address", DEFAULT_ADDRESS).toString()),
         settings.value("interval", DEFAULT_INTERVAL).toInt(),
         settings.value("folder", "").toString(),
+        getAppsToWatch(),
         true,
         this);
 
@@ -45,6 +48,7 @@ Window::Window() :
     connect(folderEdit, &QLineEdit::textChanged, this, &Window::folderChanged);
     connect(folderSelectButton, &QAbstractButton::clicked, this, &Window::selectFolder);
     connect(appSelectButton, &QAbstractButton::clicked, this, &Window::selectApp);
+    connect(appRemoveButton, &QAbstractButton::clicked, this, &Window::removeApp);
     connect(trayIcon, &QSystemTrayIcon::activated, this, &Window::iconActivated);
 
     QVBoxLayout *mainLayout = new QVBoxLayout;
@@ -55,6 +59,18 @@ Window::Window() :
     trayIcon->show();
 
     setWindowTitle(tr("OBS Auto Record"));
+}
+
+std::set<std::string> Window::getAppsToWatch()
+{
+    std::set<std::string> appsToWatch;
+    int size = settings.beginReadArray("appsToWatch");
+    for (int i = 0; i < size; ++i) {
+        settings.setArrayIndex(i);
+        appsToWatch.insert(settings.value("name").toString().toStdString());
+    }
+    settings.endArray();
+    return appsToWatch;
 }
 
 void Window::setVisible(bool visible)
@@ -142,6 +158,35 @@ void Window::selectApp()
     }
 }
 
+void Window::removeApp()
+{
+    qDeleteAll(appList->selectedItems());
+}
+
+void Window::appsToWatchChanged()
+{
+    settings.remove("appsToWatch");
+    settings.beginWriteArray("appsToWatch");
+    std::set<std::string> appsToWatch;
+    for (int i = 0; i < appList->count(); ++i) {
+        QListWidgetItem* item = appList->item(i);
+        settings.setArrayIndex(i);
+        settings.setValue("name", item->text());
+        QPixmap pixmap = item->icon().pixmap(QSize(16, 16));
+        QByteArray bArray;
+        QBuffer buffer(&bArray);
+        buffer.open(QIODevice::WriteOnly);
+        pixmap.save(&buffer, "PNG");
+        settings.setValue("icon", bArray);
+        std::string app = item->text().toStdString();
+        if (appsToWatch.find(app) == appsToWatch.end()) {
+            appsToWatch.insert(app);
+        }
+    }
+    settings.endArray();
+    oar->setAppsToWatch(appsToWatch);
+}
+
 void Window::createGeneralGroupBox()
 {
     generalGroupBox = new QGroupBox(tr("General Settings"));
@@ -167,7 +212,25 @@ void Window::createGeneralGroupBox()
     appSelectButton = new QPushButton(tr("Select Application"));    
     appSelectButton->setAutoDefault(false);
 
+    appRemoveButton = new QPushButton(tr("Remove"));    
+    appRemoveButton->setAutoDefault(false);
+
     appList = new QListWidget;
+
+    int size = settings.beginReadArray("appsToWatch");
+    for (int i = 0; i < size; ++i) {
+        settings.setArrayIndex(i);
+        QListWidgetItem *newItem = new QListWidgetItem;
+        newItem->setText(settings.value("name").toString());
+        QPixmap pixmap;
+        pixmap.loadFromData(settings.value("icon").toByteArray(), "PNG");
+        newItem->setIcon(QIcon(pixmap));
+        appList->addItem(newItem);
+    }
+    settings.endArray();
+
+    connect(appList->model(), &QAbstractListModel::rowsInserted, this, &Window::appsToWatchChanged);
+    connect(appList->model(), &QAbstractListModel::rowsRemoved, this, &Window::appsToWatchChanged);
 
     QGridLayout *messageLayout = new QGridLayout;
     messageLayout->addWidget(intervalLabel, 1, 0);
@@ -178,6 +241,7 @@ void Window::createGeneralGroupBox()
     messageLayout->addWidget(folderEdit, 3, 1, 1, 3);
     messageLayout->addWidget(folderSelectButton, 3, 4);
     messageLayout->addWidget(appSelectButton, 4, 0);
+    messageLayout->addWidget(appRemoveButton, 4, 4);
     messageLayout->addWidget(appList, 5, 0, 4, 5);
     generalGroupBox->setLayout(messageLayout);
 }

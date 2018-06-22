@@ -9,18 +9,16 @@ ObsAutoRecord::ObsAutoRecord(
     const QUrl &url,
     const int interval,
     const QString &folder,
+    std::set<std::string> appsToWatch,
     bool debug,
     QObject *parent) :
         QObject(parent),
         m_obsWebSocket(url, debug, this),
         m_url(url),
         m_folder(folder),
+        m_appsToWatch(appsToWatch),
         m_debug(debug)
 {
-    appsToLookFor.insert("destiny2.exe");
-    appsToLookFor.insert("HeroesOfTheStorm_x64.exe");
-    appsToLookFor.insert("Wow64.exe");
-
     QObject::connect(&m_obsWebSocket, SIGNAL(onResponse(QJsonObject)),
                      this, SLOT(onStatus(QJsonObject)));
     timer = new QTimer;
@@ -43,6 +41,11 @@ void ObsAutoRecord::setInterval(const int interval)
 void ObsAutoRecord::setFolder(const QString &folder)
 {
     m_folder = folder;
+}
+
+void  ObsAutoRecord::setAppsToWatch(std::set<std::string> appsToWatch)
+{
+    m_appsToWatch = appsToWatch;
 }
 
 void ObsAutoRecord::pingStatus()
@@ -101,36 +104,38 @@ void ObsAutoRecord::onStatus(QJsonObject msg)
     }
     if (msg.contains("recording") && idsWaitToRecord.empty()) {
         bool recording = msg.value("recording").toBool();
-        QString openApp = QString::fromStdString(m_obsUtils.getOpenApp(appsToLookFor));
+        QString openApp = QString::fromStdString(m_obsUtils.getOpenApp(m_appsToWatch));
         if (!recording && !openApp.isEmpty()) {
             if (m_debug) {
                 qDebug() << "App found: " << openApp;
             }
-            QString recFolder = m_folder;
-            if (m_folder.contains("\\")) {
-                // windows paths
-                if (m_folder.endsWith("\\")) {
-                    recFolder.append(openApp);
+            if (!m_folder.isEmpty()) {
+                QString recFolder = m_folder;
+                if (m_folder.contains("\\")) {
+                    // windows paths
+                    if (m_folder.endsWith("\\")) {
+                        recFolder.append(openApp);
+                    } else {
+                        recFolder.append("\\" + openApp);
+                    }
+                } else if (m_folder.contains("/")) {
+                    // unix paths
+                    if (m_folder.endsWith("/")) {
+                        recFolder.append(openApp);
+                    } else {
+                        recFolder.append("/" + openApp);
+                    }
                 } else {
-                    recFolder.append("\\" + openApp);
+                    // not a valid path
                 }
-            } else if (m_folder.contains("/")) {
-                // unix paths
-                if (m_folder.endsWith("/")) {
-                    recFolder.append(openApp);
-                } else {
-                    recFolder.append("/" + openApp);
-                }
-            } else {
-                // not a valid path
+                QJsonObject object
+                {
+                    {"rec-folder", recFolder}
+                };
+                m_msgid++;
+                idsWaitToRecord.insert(m_msgid);
+                m_obsWebSocket.sendRequest("SetRecordingFolder", m_msgid, object);
             }
-            QJsonObject object
-            {
-                {"rec-folder", recFolder}
-            };
-            m_msgid++;
-            idsWaitToRecord.insert(m_msgid);
-            m_obsWebSocket.sendRequest("SetRecordingFolder", m_msgid, object);
             m_msgid++;
             idsWaitToRecord.insert(m_msgid);
             setFilenameFormatting(openApp, m_msgid);

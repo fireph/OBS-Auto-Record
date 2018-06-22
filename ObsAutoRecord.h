@@ -16,11 +16,13 @@ public:
         const QUrl &url,
         const int interval,
         const QString &folder,
+        std::set<std::string> appsToWatch,
         bool debug = false,
         QObject *parent = nullptr);
     void setAddress(const QUrl &url);
     void setInterval(const int interval);
     void setFolder(const QString &folder);
+    void setAppsToWatch(std::set<std::string> appsToWatch);
 
 private slots:
     void pingStatus();
@@ -34,11 +36,11 @@ private:
     ObsUtils m_obsUtils;
     QUrl m_url;
     QString m_folder;
+    std::set<std::string> m_appsToWatch;
     bool m_debug;
     int m_msgid = 0;
     QTimer *timer;
     QString defaultFilenameFormatting = "%CCYY-%MM-%DD %hh-%mm-%ss";
-    std::set<std::string> appsToLookFor;
     std::set<int> idsWaitToRecord;
 };
 

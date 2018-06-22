@@ -7,6 +7,8 @@
 
 #include <QDialog>
 #include <QSettings>
+#include <QString>
+#include <QSet>
 #include "ObsAutoRecord.h"
 
 class QAction;
@@ -28,6 +30,7 @@ class Window : public QDialog
 public:
     Window();
 
+    std::set<std::string> getAppsToWatch();
     void setVisible(bool visible) override;
 
 protected:
@@ -40,6 +43,8 @@ private slots:
     void folderChanged();
     void selectFolder();
     void selectApp();
+    void removeApp();
+    void appsToWatchChanged();
 
 private:
     void createGeneralGroupBox();
@@ -60,6 +65,7 @@ private:
     QPushButton *folderSelectButton;
     QListWidget *appList;
     QPushButton *appSelectButton;
+    QPushButton *appRemoveButton;
 
     QAction *showAction;
     QAction *quitAction;
