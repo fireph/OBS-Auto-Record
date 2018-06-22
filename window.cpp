@@ -37,6 +37,9 @@ Window::Window() :
         true,
         this);
 
+    QObject::connect(oar, SIGNAL(onStateUpdate(ObsAutoRecordState)),
+                     this, SLOT(updateState(ObsAutoRecordState)));
+
     createGeneralGroupBox();
 
     createActions();
@@ -55,7 +58,12 @@ Window::Window() :
     mainLayout->addWidget(generalGroupBox);
     setLayout(mainLayout);
 
-    trayIcon->setIcon(QIcon(":/images/record_red.ico"));
+    trayIcons.insert(ObsAutoRecordState::CONNECTED, QIcon(":/images/record_green.ico"));
+    trayIcons.insert(ObsAutoRecordState::DISCONNECTED, QIcon(":/images/record_red.ico"));
+    trayIcons.insert(ObsAutoRecordState::PAUSED, QIcon(":/images/pause.ico"));
+    trayIcons.insert(ObsAutoRecordState::WARNING, QIcon(":/images/warning.ico"));
+
+    trayIcon->setIcon(trayIcons.value(ObsAutoRecordState::DISCONNECTED));
     trayIcon->show();
 
     setWindowTitle(tr("OBS Auto Record"));
@@ -185,6 +193,11 @@ void Window::appsToWatchChanged()
     }
     settings.endArray();
     oar->setAppsToWatch(appsToWatch);
+}
+
+void Window::updateState(ObsAutoRecordState state)
+{
+    trayIcon->setIcon(trayIcons.value(state));
 }
 
 void Window::createGeneralGroupBox()

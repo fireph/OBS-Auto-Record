@@ -82,6 +82,7 @@ void ObsWebSocket::onConnected()
     if (m_debug)
         qDebug() << "WebSocket connected:" << m_url;
     m_isConnected = true;
+    emit connected(m_isConnected);
     connect(&m_webSocket, &QWebSocket::textMessageReceived,
             this, &ObsWebSocket::onMessageReceived);
 }
@@ -89,6 +90,7 @@ void ObsWebSocket::onConnected()
 void ObsWebSocket::onClosed()
 {
     m_isConnected = false;
+    emit connected(m_isConnected);
     disconnect(&m_webSocket, &QWebSocket::connected,
                this, &ObsWebSocket::onConnected);
     disconnect(&m_webSocket, &QWebSocket::disconnected,

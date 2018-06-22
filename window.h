@@ -10,6 +10,7 @@
 #include <QString>
 #include <QSet>
 #include "ObsAutoRecord.h"
+#include "ObsAutoRecordState.h"
 
 class QAction;
 class QCheckBox;
@@ -45,6 +46,7 @@ private slots:
     void selectApp();
     void removeApp();
     void appsToWatchChanged();
+    void updateState(ObsAutoRecordState state);
 
 private:
     void createGeneralGroupBox();
@@ -72,6 +74,8 @@ private:
 
     QSystemTrayIcon *trayIcon;
     QMenu *trayIconMenu;
+
+    QMap<ObsAutoRecordState, QIcon> trayIcons;
 
     const int DEFAULT_INTERVAL = 15;
     const QString DEFAULT_ADDRESS = "ws://localhost:4444";

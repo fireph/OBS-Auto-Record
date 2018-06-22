@@ -21,6 +21,8 @@ ObsAutoRecord::ObsAutoRecord(
 {
     QObject::connect(&m_obsWebSocket, SIGNAL(onResponse(QJsonObject)),
                      this, SLOT(onStatus(QJsonObject)));
+    QObject::connect(&m_obsWebSocket, SIGNAL(connected(bool)),
+                     this, SLOT(setIsConnected(bool)));
     timer = new QTimer;
     timer->setInterval(interval * 1000);
     timer->start();
@@ -144,5 +146,14 @@ void ObsAutoRecord::onStatus(QJsonObject msg)
             m_obsWebSocket.sendRequest("StopRecording", m_msgid);
             changeFolderBack();
         }
+    }
+}
+
+void ObsAutoRecord::setIsConnected(bool isConnected)
+{
+    if (isConnected) {
+        emit onStateUpdate(ObsAutoRecordState::CONNECTED);
+    } else {
+        emit onStateUpdate(ObsAutoRecordState::DISCONNECTED);
     }
 }

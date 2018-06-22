@@ -19,6 +19,7 @@ public:
 
 signals:
     void onResponse(QJsonObject json);
+    void connected(bool isConnected);
 
 private slots:
     void onConnected();
