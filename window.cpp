@@ -172,7 +172,7 @@ void Window::appsToWatchChanged()
         QListWidgetItem* item = appList->item(i);
         settings.setArrayIndex(i);
         settings.setValue("name", item->text());
-        QPixmap pixmap = item->icon().pixmap(QSize(16, 16));
+        QPixmap pixmap = item->icon().pixmap(ICON_SIZE);
         QByteArray bArray;
         QBuffer buffer(&bArray);
         buffer.open(QIODevice::WriteOnly);
@@ -216,6 +216,7 @@ void Window::createGeneralGroupBox()
     appRemoveButton->setAutoDefault(false);
 
     appList = new QListWidget;
+    appList->setIconSize(ICON_SIZE);
 
     int size = settings.beginReadArray("appsToWatch");
     for (int i = 0; i < size; ++i) {
