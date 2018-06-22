@@ -37,6 +37,7 @@ private slots:
     void intervalChanged();
     void addressChanged();
     void folderChanged();
+    void selectFolder();
 
 private:
     void createGeneralGroupBox();
@@ -54,6 +55,7 @@ private:
     QSpinBox *intervalSpinBox;
     QLineEdit *addressEdit;
     QLineEdit *folderEdit;
+    QPushButton *folderSelectButton;
 
     QAction *showAction;
     QAction *quitAction;

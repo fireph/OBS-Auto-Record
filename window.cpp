@@ -18,6 +18,7 @@
 #include <QtGlobal>
 #include <QVBoxLayout>
 #include <QMessageBox>
+#include <QFileDialog>
 
 Window::Window() :
     settings("DungFu", "OBS Auto Record")
@@ -38,6 +39,7 @@ Window::Window() :
             this, &Window::intervalChanged);
     connect(addressEdit, &QLineEdit::textChanged, this, &Window::addressChanged);
     connect(folderEdit, &QLineEdit::textChanged, this, &Window::folderChanged);
+    connect(folderSelectButton, &QAbstractButton::clicked, this, &Window::selectFolder);
     connect(trayIcon, &QSystemTrayIcon::activated, this, &Window::iconActivated);
 
     QVBoxLayout *mainLayout = new QVBoxLayout;
@@ -48,7 +50,6 @@ Window::Window() :
     trayIcon->show();
 
     setWindowTitle(tr("OBS Auto Record"));
-    resize(400, 300);
 }
 
 void Window::setVisible(bool visible)
@@ -99,6 +100,18 @@ void Window::folderChanged()
     oar->setFolder(folderEdit->text());
 }
 
+void Window::selectFolder()
+{
+    QFileDialog dialog(this);
+    dialog.setFileMode(QFileDialog::Directory);
+    if (dialog.exec()) {
+        QStringList folders = dialog.selectedFiles();
+        if (!folders.isEmpty()) {
+            folderEdit->setText(folders[0]);
+        }
+    }
+}
+
 void Window::createGeneralGroupBox()
 {
     generalGroupBox = new QGroupBox(tr("General Settings"));
@@ -118,15 +131,17 @@ void Window::createGeneralGroupBox()
 
     folderEdit = new QLineEdit(settings.value("folder", "").toString());
 
+    folderSelectButton = new QPushButton(tr("Select Folder"));    
+    folderSelectButton->setAutoDefault(false);
+
     QGridLayout *messageLayout = new QGridLayout;
     messageLayout->addWidget(intervalLabel, 1, 0);
     messageLayout->addWidget(intervalSpinBox, 1, 1);
     messageLayout->addWidget(addressLabel, 2, 0);
     messageLayout->addWidget(addressEdit, 2, 1, 1, 4);
     messageLayout->addWidget(folderLabel, 3, 0);
-    messageLayout->addWidget(folderEdit, 3, 1, 1, 4);
-    messageLayout->setColumnStretch(3, 1);
-    messageLayout->setRowStretch(4, 1);
+    messageLayout->addWidget(folderEdit, 3, 1, 1, 3);
+    messageLayout->addWidget(folderSelectButton, 3, 4);
     generalGroupBox->setLayout(messageLayout);
 }
 

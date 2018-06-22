@@ -89,7 +89,17 @@ void ObsAutoRecord::changeFolderBack()
 
 void ObsAutoRecord::onStatus(QJsonObject msg)
 {
-    if (msg.contains("recording")) {
+    if (msg.contains("message-id")) {
+        int msgid = msg.value("message-id").toString().toInt();
+        std::set<int>::iterator it = idsWaitToRecord.find(msgid);
+        if (it != idsWaitToRecord.end()) {
+            idsWaitToRecord.erase(msgid);
+            if (idsWaitToRecord.empty()) {
+                startRecording();
+            }
+        }
+    }
+    if (msg.contains("recording") && idsWaitToRecord.empty()) {
         bool recording = msg.value("recording").toBool();
         QString openApp = QString::fromStdString(m_obsUtils.getOpenApp(appsToLookFor));
         if (!recording && !openApp.isEmpty()) {
@@ -128,15 +138,6 @@ void ObsAutoRecord::onStatus(QJsonObject msg)
             m_msgid++;
             m_obsWebSocket.sendRequest("StopRecording", m_msgid);
             changeFolderBack();
-        }
-    } else if (msg.contains("message-id")) {
-        int msgid = msg.value("message-id").toString().toInt();
-        std::set<int>::iterator it = idsWaitToRecord.find(msgid);
-        if (it != idsWaitToRecord.end()) {
-            idsWaitToRecord.erase(msgid);
-            if (idsWaitToRecord.empty()) {
-                startRecording();
-            }
         }
     }
 }
