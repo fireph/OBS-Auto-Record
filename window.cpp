@@ -20,6 +20,9 @@
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QListWidget>
+#include <QListWidgetItem>
+#include <QFileInfo>
+#include <QFileSystemModel>
 
 Window::Window() :
     settings("DungFu", "OBS Auto Record")
@@ -126,7 +129,14 @@ void Window::selectApp()
         QList<QUrl> files = dialog.selectedUrls();
         if (!files.isEmpty()) {
             for (QUrl file : files) {
-                appList->addItem(file.fileName()); 
+                QFileInfo fi(file.toLocalFile());
+                QFileSystemModel *model = new QFileSystemModel;
+                model->setRootPath(fi.path());
+                QIcon ic = model->fileIcon(model->index(fi.filePath()));
+                QListWidgetItem *newItem = new QListWidgetItem;
+                newItem->setIcon(ic);
+                newItem->setText(file.fileName());
+                appList->addItem(newItem);
             }
         }
     }
