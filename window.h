@@ -19,6 +19,7 @@ class QMenu;
 class QPushButton;
 class QSpinBox;
 class QTextEdit;
+class QListWidget;
 
 class Window : public QDialog
 {
@@ -38,6 +39,7 @@ private slots:
     void addressChanged();
     void folderChanged();
     void selectFolder();
+    void selectApp();
 
 private:
     void createGeneralGroupBox();
@@ -56,6 +58,8 @@ private:
     QLineEdit *addressEdit;
     QLineEdit *folderEdit;
     QPushButton *folderSelectButton;
+    QListWidget *appList;
+    QPushButton *appSelectButton;
 
     QAction *showAction;
     QAction *quitAction;
