@@ -75,6 +75,7 @@ private:
 
     const int DEFAULT_INTERVAL = 15;
     const QString DEFAULT_ADDRESS = "ws://localhost:4444";
+    const QSize ICON_SIZE = QSize(32, 32);
 };
 
 #endif // QT_NO_SYSTEMTRAYICON
