@@ -19,6 +19,7 @@
 #include <QVBoxLayout>
 #include <QMessageBox>
 #include <QFileDialog>
+#include <QListWidget>
 
 Window::Window() :
     settings("DungFu", "OBS Auto Record")
@@ -40,6 +41,7 @@ Window::Window() :
     connect(addressEdit, &QLineEdit::textChanged, this, &Window::addressChanged);
     connect(folderEdit, &QLineEdit::textChanged, this, &Window::folderChanged);
     connect(folderSelectButton, &QAbstractButton::clicked, this, &Window::selectFolder);
+    connect(appSelectButton, &QAbstractButton::clicked, this, &Window::selectApp);
     connect(trayIcon, &QSystemTrayIcon::activated, this, &Window::iconActivated);
 
     QVBoxLayout *mainLayout = new QVBoxLayout;
@@ -112,6 +114,24 @@ void Window::selectFolder()
     }
 }
 
+void Window::selectApp()
+{
+    QFileDialog dialog(this);
+    dialog.setFileMode(QFileDialog::ExistingFiles);
+    QStringList filters;
+    filters << "Exe files (*.exe)"
+            << "Any files (*)";
+    dialog.setNameFilters(filters);
+    if (dialog.exec()) {
+        QList<QUrl> files = dialog.selectedUrls();
+        if (!files.isEmpty()) {
+            for (QUrl file : files) {
+                appList->addItem(file.fileName()); 
+            }
+        }
+    }
+}
+
 void Window::createGeneralGroupBox()
 {
     generalGroupBox = new QGroupBox(tr("General Settings"));
@@ -134,6 +154,11 @@ void Window::createGeneralGroupBox()
     folderSelectButton = new QPushButton(tr("Select Folder"));    
     folderSelectButton->setAutoDefault(false);
 
+    appSelectButton = new QPushButton(tr("Select Application"));    
+    appSelectButton->setAutoDefault(false);
+
+    appList = new QListWidget;
+
     QGridLayout *messageLayout = new QGridLayout;
     messageLayout->addWidget(intervalLabel, 1, 0);
     messageLayout->addWidget(intervalSpinBox, 1, 1);
@@ -142,6 +167,8 @@ void Window::createGeneralGroupBox()
     messageLayout->addWidget(folderLabel, 3, 0);
     messageLayout->addWidget(folderEdit, 3, 1, 1, 3);
     messageLayout->addWidget(folderSelectButton, 3, 4);
+    messageLayout->addWidget(appSelectButton, 4, 0);
+    messageLayout->addWidget(appList, 5, 0, 4, 5);
     generalGroupBox->setLayout(messageLayout);
 }
 
