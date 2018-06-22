@@ -7,6 +7,7 @@
 #include <QTimer>
 #include "ObsWebSocket.h"
 #include "ObsUtils.h"
+#include "ObsAutoRecordState.h"
 
 class ObsAutoRecord : public QObject
 {
@@ -24,12 +25,16 @@ public:
     void setFolder(const QString &folder);
     void setAppsToWatch(std::set<std::string> appsToWatch);
 
+signals:
+    void onStateUpdate(ObsAutoRecordState state);
+
 private slots:
     void pingStatus();
     void startRecording(); 
     void setFilenameFormatting(QString appName, int msgid);
     void changeFolderBack();
     void onStatus(QJsonObject msg);
+    void setIsConnected(bool isConnected);
 
 private:
     ObsWebSocket m_obsWebSocket;
