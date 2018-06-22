@@ -36,6 +36,7 @@ private slots:
     void iconActivated(QSystemTrayIcon::ActivationReason reason);
     void intervalChanged();
     void addressChanged();
+    void folderChanged();
 
 private:
     void createGeneralGroupBox();
@@ -49,10 +50,10 @@ private:
     QGroupBox *generalGroupBox;
     QLabel *intervalLabel;
     QLabel *addressLabel;
-    QLabel *bodyLabel;
+    QLabel *folderLabel;
     QSpinBox *intervalSpinBox;
     QLineEdit *addressEdit;
-    QTextEdit *bodyEdit;
+    QLineEdit *folderEdit;
 
     QAction *showAction;
     QAction *quitAction;

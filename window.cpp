@@ -25,6 +25,7 @@ Window::Window() :
     oar = new ObsAutoRecord(
         QUrl(settings.value("address", DEFAULT_ADDRESS).toString()),
         settings.value("interval", DEFAULT_INTERVAL).toInt(),
+        settings.value("folder", "").toString(),
         true,
         this);
 
@@ -36,6 +37,7 @@ Window::Window() :
     connect(intervalSpinBox, QOverload<int>::of(&QSpinBox::valueChanged),
             this, &Window::intervalChanged);
     connect(addressEdit, &QLineEdit::textChanged, this, &Window::addressChanged);
+    connect(folderEdit, &QLineEdit::textChanged, this, &Window::folderChanged);
     connect(trayIcon, &QSystemTrayIcon::activated, this, &Window::iconActivated);
 
     QVBoxLayout *mainLayout = new QVBoxLayout;
@@ -91,6 +93,12 @@ void Window::addressChanged()
     oar->setAddress(QUrl(addressEdit->text()));
 }
 
+void Window::folderChanged()
+{
+    settings.setValue("folder", folderEdit->text());
+    oar->setFolder(folderEdit->text());
+}
+
 void Window::createGeneralGroupBox()
 {
     generalGroupBox = new QGroupBox(tr("General Settings"));
@@ -106,19 +114,17 @@ void Window::createGeneralGroupBox()
 
     addressEdit = new QLineEdit(settings.value("address", DEFAULT_ADDRESS).toString());
 
-    bodyLabel = new QLabel(tr("Body:"));
+    folderLabel = new QLabel(tr("Folder:"));
 
-    bodyEdit = new QTextEdit;
-    bodyEdit->setPlainText(tr("Don't believe me. Honestly, I don't have a "
-                              "clue.\nClick this balloon for details."));
+    folderEdit = new QLineEdit(settings.value("folder", "").toString());
 
     QGridLayout *messageLayout = new QGridLayout;
     messageLayout->addWidget(intervalLabel, 1, 0);
     messageLayout->addWidget(intervalSpinBox, 1, 1);
     messageLayout->addWidget(addressLabel, 2, 0);
     messageLayout->addWidget(addressEdit, 2, 1, 1, 4);
-    messageLayout->addWidget(bodyLabel, 3, 0);
-    messageLayout->addWidget(bodyEdit, 3, 1, 2, 4);
+    messageLayout->addWidget(folderLabel, 3, 0);
+    messageLayout->addWidget(folderEdit, 3, 1, 1, 4);
     messageLayout->setColumnStretch(3, 1);
     messageLayout->setRowStretch(4, 1);
     generalGroupBox->setLayout(messageLayout);
