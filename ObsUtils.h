@@ -12,7 +12,7 @@ class ObsUtils
 {
 public:
     ObsUtils();
-    std::string ObsUtils::getOpenApp(std::set<std::string> exes);
+    std::string getOpenApp(std::set<std::string> exes);
 
 private:
 #ifdef WIN32
