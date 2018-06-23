@@ -78,6 +78,7 @@ private:
     QMenu *trayIconMenu;
 
     QMap<ObsAutoRecordState, QIcon> trayIcons;
+    QMap<ObsAutoRecordState, QString> trayToolTips;
 
     const int DEFAULT_INTERVAL = 15;
     const QString DEFAULT_ADDRESS = "ws://localhost:4444";
