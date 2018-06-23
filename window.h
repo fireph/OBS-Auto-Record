@@ -1,6 +1,8 @@
 #ifndef WINDOW_H
 #define WINDOW_H
 
+#include <unordered_map>
+
 #include <QSystemTrayIcon>
 
 #ifndef QT_NO_SYSTEMTRAYICON
@@ -9,6 +11,8 @@
 #include <QSettings>
 #include <QString>
 #include <QSet>
+#include <QListWidgetItem>
+#include "ObsUtils.h"
 #include "ObsAutoRecord.h"
 #include "ObsAutoRecordState.h"
 
@@ -31,7 +35,7 @@ class Window : public QDialog
 public:
     Window();
 
-    std::set<std::string> getAppsToWatch();
+    std::unordered_map<std::string, std::string> getAppsToWatch();
     void setVisible(bool visible) override;
 
 protected:
@@ -49,6 +53,7 @@ private slots:
     void appSelected();
     void updateState(ObsAutoRecordState state);
     void toggleWindow();
+    void appEdit(QListWidgetItem* app);
 
 private:
     void createGeneralGroupBox();

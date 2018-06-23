@@ -9,7 +9,7 @@ ObsAutoRecord::ObsAutoRecord(
     const QUrl &url,
     const int interval,
     const QString &folder,
-    std::set<std::string> appsToWatch,
+    std::unordered_map<std::string, std::string> appsToWatch,
     bool debug,
     QObject *parent) :
         QObject(parent),
@@ -45,7 +45,7 @@ void ObsAutoRecord::setFolder(const QString &folder)
     m_folder = folder;
 }
 
-void  ObsAutoRecord::setAppsToWatch(std::set<std::string> appsToWatch)
+void  ObsAutoRecord::setAppsToWatch(std::unordered_map<std::string, std::string> appsToWatch)
 {
     m_appsToWatch = appsToWatch;
 }
@@ -106,7 +106,7 @@ void ObsAutoRecord::onStatus(QJsonObject msg)
     }
     if (msg.contains("recording") && idsWaitToRecord.empty()) {
         bool recording = msg.value("recording").toBool();
-        QString openApp = QString::fromStdString(m_obsUtils.getOpenApp(m_appsToWatch));
+        QString openApp = QString::fromStdString(ObsUtils::getOpenApp(m_appsToWatch));
         if (!recording && !openApp.isEmpty()) {
             if (m_debug) {
                 qDebug() << "App found: " << openApp;
