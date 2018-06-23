@@ -66,7 +66,14 @@ Window::Window() :
     trayIcons.insert(ObsAutoRecordState::PAUSED, QIcon(":/images/pause.ico"));
     trayIcons.insert(ObsAutoRecordState::WARNING, QIcon(":/images/warning.ico"));
 
+    QString toolTipBase = "OBS Auto Record (";
+    trayToolTips.insert(ObsAutoRecordState::CONNECTED, toolTipBase + "connected)");
+    trayToolTips.insert(ObsAutoRecordState::DISCONNECTED, toolTipBase + "disconnected)");
+    trayToolTips.insert(ObsAutoRecordState::PAUSED, toolTipBase + "paused)");
+    trayToolTips.insert(ObsAutoRecordState::WARNING, toolTipBase + "WARNING)");
+
     trayIcon->setIcon(trayIcons.value(ObsAutoRecordState::DISCONNECTED));
+    trayIcon->setToolTip(trayToolTips.value(ObsAutoRecordState::DISCONNECTED));
     trayIcon->show();
 
     setWindowTitle(tr("OBS Auto Record"));
@@ -206,6 +213,7 @@ void Window::appSelected()
 void Window::updateState(ObsAutoRecordState state)
 {
     trayIcon->setIcon(trayIcons.value(state));
+    trayIcon->setToolTip(trayToolTips.value(state));
     setWindowIcon(trayIcons.value(state));
 }
 
