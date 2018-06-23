@@ -20,11 +20,12 @@
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QListWidget>
-#include <QListWidgetItem>
 #include <QFileInfo>
 #include <QFileSystemModel>
 #include <QBuffer>
 #include <QByteArray>
+#include <QDir>
+#include <QInputDialog>
 
 Window::Window() :
     settings("DungFu", "OBS Auto Record")
@@ -36,7 +37,7 @@ Window::Window() :
         settings.value("interval", DEFAULT_INTERVAL).toInt(),
         settings.value("folder", "").toString(),
         getAppsToWatch(),
-        false,
+        true,
         this);
 
     QObject::connect(oar, SIGNAL(onStateUpdate(ObsAutoRecordState)),
@@ -55,6 +56,7 @@ Window::Window() :
     connect(appSelectButton, &QAbstractButton::clicked, this, &Window::selectApp);
     connect(appRemoveButton, &QAbstractButton::clicked, this, &Window::removeApp);
     connect(appList, &QListWidget::itemSelectionChanged, this, &Window::appSelected);
+    connect(appList, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(appEdit(QListWidgetItem*)));
     connect(trayIcon, &QSystemTrayIcon::activated, this, &Window::iconActivated);
 
     QVBoxLayout *mainLayout = new QVBoxLayout;
@@ -79,13 +81,15 @@ Window::Window() :
     setWindowTitle(tr("OBS Auto Record"));
 }
 
-std::set<std::string> Window::getAppsToWatch()
+std::unordered_map<std::string, std::string> Window::getAppsToWatch()
 {
-    std::set<std::string> appsToWatch;
+    std::unordered_map<std::string, std::string> appsToWatch;
     int size = settings.beginReadArray("appsToWatch");
     for (int i = 0; i < size; ++i) {
         settings.setArrayIndex(i);
-        appsToWatch.insert(settings.value("name").toString().toStdString());
+        std::string filename = settings.value("filename").toString().toStdString();
+        std::string name = settings.value("name").toString().toStdString();
+        appsToWatch.insert_or_assign(filename, name);
     }
     settings.endArray();
     return appsToWatch;
@@ -163,13 +167,17 @@ void Window::selectApp()
         QList<QUrl> files = dialog.selectedUrls();
         if (!files.isEmpty()) {
             for (QUrl file : files) {
-                QFileInfo fi(file.toLocalFile());
+                QString appPath = file.toLocalFile();
+                QString appName = QString::fromStdString(
+                    ObsUtils::getNameFromAppPath(QDir::toNativeSeparators(appPath).toStdString()));
+                QFileInfo fi(appPath);
                 QFileSystemModel *model = new QFileSystemModel;
                 model->setRootPath(fi.path());
                 QIcon ic = model->fileIcon(model->index(fi.filePath()));
                 QListWidgetItem *newItem = new QListWidgetItem;
                 newItem->setIcon(ic);
-                newItem->setText(file.fileName());
+                newItem->setText(appName);
+                newItem->setData(Qt::UserRole, file.fileName());
                 appList->addItem(newItem);
             }
         }
@@ -185,21 +193,21 @@ void Window::appsToWatchChanged()
 {
     settings.remove("appsToWatch");
     settings.beginWriteArray("appsToWatch");
-    std::set<std::string> appsToWatch;
+    std::unordered_map<std::string, std::string> appsToWatch;
     for (int i = 0; i < appList->count(); ++i) {
         QListWidgetItem* item = appList->item(i);
         settings.setArrayIndex(i);
         settings.setValue("name", item->text());
+        settings.setValue("filename", item->data(Qt::UserRole).toString());
         QPixmap pixmap = item->icon().pixmap(ICON_SIZE);
         QByteArray bArray;
         QBuffer buffer(&bArray);
         buffer.open(QIODevice::WriteOnly);
         pixmap.save(&buffer, "PNG");
         settings.setValue("icon", bArray);
-        std::string app = item->text().toStdString();
-        if (appsToWatch.find(app) == appsToWatch.end()) {
-            appsToWatch.insert(app);
-        }
+        std::string name = item->text().toStdString();
+        std::string filename = item->data(Qt::UserRole).toString().toStdString();
+        appsToWatch.insert_or_assign(filename, name);
     }
     settings.endArray();
     oar->setAppsToWatch(appsToWatch);
@@ -224,6 +232,17 @@ void Window::toggleWindow()
         raise();
         activateWindow();
     }
+}
+
+void Window::appEdit(QListWidgetItem* app)
+{
+    bool ok;
+    QString newName =
+        QInputDialog::getText(this, app->data(Qt::UserRole).toString(),
+                              tr("App Name:"), QLineEdit::Normal,
+                              app->text(), &ok);
+    if (ok && !newName.isEmpty())
+        app->setText(newName);
 }
 
 void Window::createGeneralGroupBox()
@@ -263,6 +282,7 @@ void Window::createGeneralGroupBox()
         settings.setArrayIndex(i);
         QListWidgetItem *newItem = new QListWidgetItem;
         newItem->setText(settings.value("name").toString());
+        newItem->setData(Qt::UserRole, settings.value("filename").toString());
         QPixmap pixmap;
         pixmap.loadFromData(settings.value("icon").toByteArray(), "PNG");
         newItem->setIcon(QIcon(pixmap));
@@ -272,6 +292,7 @@ void Window::createGeneralGroupBox()
 
     connect(appList->model(), &QAbstractListModel::rowsInserted, this, &Window::appsToWatchChanged);
     connect(appList->model(), &QAbstractListModel::rowsRemoved, this, &Window::appsToWatchChanged);
+    connect(appList->model(), &QAbstractListModel::dataChanged, this, &Window::appsToWatchChanged);
 
     QGridLayout *messageLayout = new QGridLayout;
     messageLayout->addWidget(intervalLabel, 1, 0);

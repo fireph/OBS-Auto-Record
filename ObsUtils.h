@@ -8,18 +8,14 @@
 #include <windows.h>
 #endif
 
-class ObsUtils
+namespace ObsUtils
 {
-public:
-    ObsUtils();
-    std::string getOpenApp(std::set<std::string> exes);
-
-private:
+    std::string getOpenApp(std::unordered_map<std::string, std::string> appsToWatch);
+    std::string getNameFromAppPath(std::string appPath);
 #ifdef WIN32
     static BOOL GetTranslationId(LPVOID lpData, UINT unBlockSize, WORD wLangId, DWORD &dwId, BOOL bPrimaryEnough = FALSE);
-    static BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam);
+    static BOOL CALLBACK EnumWindowsProcOpenApps(HWND hwnd, LPARAM lParam);
 #endif
-    std::unordered_map<std::string, std::string> appsOpen;
 };
 
 #endif // OBSUTILS_H
