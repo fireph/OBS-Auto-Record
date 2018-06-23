@@ -46,6 +46,7 @@ private slots:
     void selectApp();
     void removeApp();
     void appsToWatchChanged();
+    void appSelected();
     void updateState(ObsAutoRecordState state);
 
 private:
