@@ -29,6 +29,8 @@
 Window::Window() :
     settings("DungFu", "OBS Auto Record")
 {
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+
     oar = new ObsAutoRecord(
         QUrl(settings.value("address", DEFAULT_ADDRESS).toString()),
         settings.value("interval", DEFAULT_INTERVAL).toInt(),
@@ -52,6 +54,7 @@ Window::Window() :
     connect(folderSelectButton, &QAbstractButton::clicked, this, &Window::selectFolder);
     connect(appSelectButton, &QAbstractButton::clicked, this, &Window::selectApp);
     connect(appRemoveButton, &QAbstractButton::clicked, this, &Window::removeApp);
+    connect(appList, &QListWidget::itemSelectionChanged, this, &Window::appSelected);
     connect(trayIcon, &QSystemTrayIcon::activated, this, &Window::iconActivated);
 
     QVBoxLayout *mainLayout = new QVBoxLayout;
@@ -105,6 +108,10 @@ void Window::iconActivated(QSystemTrayIcon::ActivationReason reason)
     switch (reason) {
     case QSystemTrayIcon::DoubleClick:
         setVisible(!isVisible());
+        if (isVisible()) {
+            raise();
+            activateWindow();
+        }
         break;
     default:
         ;
@@ -195,6 +202,11 @@ void Window::appsToWatchChanged()
     oar->setAppsToWatch(appsToWatch);
 }
 
+void Window::appSelected()
+{
+    appRemoveButton->setEnabled(!appList->selectedItems().isEmpty());
+}
+
 void Window::updateState(ObsAutoRecordState state)
 {
     trayIcon->setIcon(trayIcons.value(state));
@@ -228,6 +240,7 @@ void Window::createGeneralGroupBox()
 
     appRemoveButton = new QPushButton(tr("Remove"));    
     appRemoveButton->setAutoDefault(false);
+    appRemoveButton->setEnabled(false);
 
     appList = new QListWidget;
     appList->setIconSize(ICON_SIZE);
