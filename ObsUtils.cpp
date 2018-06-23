@@ -9,8 +9,10 @@ namespace ObsUtils
         #ifdef WIN32
         EnumWindows(EnumWindowsProcOpenApps, reinterpret_cast<LPARAM>(&appsOpen));
         #endif
-        for (const auto &appToWatch : appsToWatch) {
-            if (appsOpen.find(appToWatch.first) != appsOpen.end()) {
+        for (const auto &appToWatch : appsToWatch)
+        {
+            if (appsOpen.find(appToWatch.first) != appsOpen.end())
+            {
                 return appToWatch.second;
             }
         }
@@ -22,9 +24,11 @@ namespace ObsUtils
         const char *exe = appPath.c_str();
         DWORD dwHandle;
         DWORD dwLen = GetFileVersionInfoSizeA(exe, &dwHandle);
-        if (dwLen != 0) {
+        if (dwLen != 0)
+        {
             std::vector<unsigned char> data(dwLen);
-            if (GetFileVersionInfoA(exe, dwHandle, dwLen, &data[0])) {
+            if (GetFileVersionInfoA(exe, dwHandle, dwLen, &data[0]))
+            {
                 // catch default information
                 VS_FIXEDFILEINFO fileInfo;
                 LPVOID lpInfo;
@@ -53,25 +57,28 @@ namespace ObsUtils
 
                 CHAR buffer[1024];
                 std::sprintf(buffer, "\\StringFileInfo\\%04X%04X\\FileDescription", dwLangCode & 0x0000FFFF, (dwLangCode & 0xFFFF0000) >> 16);
-                VerQueryValueA(&data[0], buffer, &lpInfo, &unInfoLen);
-                std::string fileDescription = std::string((char*)lpInfo);
-                if (!fileDescription.empty()) {
-                    return fileDescription;
-                } else {
+                if (VerQueryValueA(&data[0], buffer, &lpInfo, &unInfoLen))
+                {
+                    return std::string((char*)lpInfo);
+                }
+                else
+                {
                     std::sprintf(buffer, "\\StringFileInfo\\%04X%04X\\ProductName", dwLangCode & 0x0000FFFF, (dwLangCode & 0xFFFF0000) >> 16);
-                    VerQueryValueA(&data[0], buffer, &lpInfo, &unInfoLen);
-                    std::string productName = std::string((char*)lpInfo);
-                    if (!productName.empty()) {
-                        return productName;
+                    if (VerQueryValueA(&data[0], buffer, &lpInfo, &unInfoLen))
+                    {
+                        return std::string((char*)lpInfo);
                     }
                 }
             }
         }
 
         std::string appExe = appPath.substr(appPath.find_last_of("\\") + 1);
-        if (appExe.size() >= 4 && appExe.compare(appExe.size() - 4, 4, ".exe") == 0) {
+        if (appExe.size() >= 4 && appExe.compare(appExe.size() - 4, 4, ".exe") == 0)
+        {
             return appExe.substr(0, appExe.size() - 4);
-        } else {
+        }
+        else
+        {
             return appExe;
         }
         #endif
@@ -108,16 +115,14 @@ namespace ObsUtils
 
     BOOL CALLBACK EnumWindowsProcOpenApps(HWND hwnd, LPARAM lParam)
     {
-        if ((!IsWindowVisible(hwnd) && !IsIconic(hwnd))) {
+        if ((!IsWindowVisible(hwnd) && !IsIconic(hwnd)))
             return TRUE;
-        }
 
         DWORD pid = 0;
         GetWindowThreadProcessId(hwnd, &pid);
         HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, pid);
-        if (hProcess == 0) {
+        if (hProcess == 0)
             return TRUE;
-        }
         DWORD exe_size = 1024;
         CHAR exe[1024];
         QueryFullProcessImageNameA(hProcess, 0, exe, &exe_size);
