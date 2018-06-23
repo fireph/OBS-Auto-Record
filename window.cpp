@@ -34,7 +34,7 @@ Window::Window() :
         settings.value("interval", DEFAULT_INTERVAL).toInt(),
         settings.value("folder", "").toString(),
         getAppsToWatch(),
-        true,
+        false,
         this);
 
     QObject::connect(oar, SIGNAL(onStateUpdate(ObsAutoRecordState)),
@@ -198,6 +198,7 @@ void Window::appsToWatchChanged()
 void Window::updateState(ObsAutoRecordState state)
 {
     trayIcon->setIcon(trayIcons.value(state));
+    setWindowIcon(trayIcons.value(state));
 }
 
 void Window::createGeneralGroupBox()

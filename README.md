@@ -4,21 +4,24 @@ Controls OBS to auto record specific games when they are running (works on Windo
 ## How to install
 1. Install [OBS Studio](https://obsproject.com/download)
 2. Install [obs-websocket](https://github.com/Palakis/obs-websocket/releases) (must be version 4.3.1 or newer)
-- obs-websocket seems to crash on latest MacOS :(
+- You'll probably have to reinstall OBS studio again after installing obs-socket (trust me, it works)
 3. Download the latest [release](https://github.com/DungFu/OBS-Auto-Record/releases) of OBS Auto Record
-4. Run OBS Auto Record and configure the settings.ini file that gets created next to executable
-  - On Mac, the settings.ini file lives in `ObsAutoRecord.app/Contents/Resources`
+4. Run OBS Auto Record!
 
 ## How to compile
 ### Windows
-Install [pywin32](https://github.com/mhammond/pywin32)
+Install [Microsoft Visual Studio Code](https://code.visualstudio.com/download)
+Install [Qt Creator](https://www.qt.io/download) (with corresponding msvsc version in newest Qt version)
+Press the run button!
+
+And if you want to move dependencies:
 ```
-pip3 install psutil pyinstaller websocket-client keyboard
-set PYTHONOPTIMIZE=2
-pyinstaller .\ObsAutoRecordWin.py --onefile --noconsole --version-file=file_version_info.txt --icon=record_red.ico --name=ObsAutoRecord --add-data "*.ico;."
+windeployqt obsautorecord.exe
 ```
 ### Mac
+Install [Qt Creator](https://www.qt.io/download) (with MacOS support in newest Qt version)
 ```
-pip3 install psutil py2app rumps websocket-client keyboard
-python3 ObsAutoRecordMacSetup.py py2app
+qmake
+make
+open -a obsautorecord.app
 ```
