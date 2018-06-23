@@ -10,6 +10,15 @@ SOURCES       = main.cpp \
                 ObsAutoRecord.cpp
 RESOURCES     = obsautorecord.qrc
 
+release: DESTDIR = release/
+debug:   DESTDIR = debug/
+profile: DESTDIR = profile/
+
+OBJECTS_DIR = $$DESTDIR/.obj
+MOC_DIR = $$DESTDIR/.moc
+RCC_DIR = $$DESTDIR/.qrc
+UI_DIR = $$DESTDIR/.ui
+
 VERSION = 1.0.0.0
 QMAKE_TARGET_COMPANY = "Frederick Meyer"
 QMAKE_TARGET_PRODUCT = "OBS Auto Record"
