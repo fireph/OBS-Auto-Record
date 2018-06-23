@@ -154,6 +154,7 @@ void ObsAutoRecord::setIsConnected(bool isConnected)
     if (isConnected) {
         emit onStateUpdate(ObsAutoRecordState::CONNECTED);
     } else {
+        idsWaitToRecord.clear();
         emit onStateUpdate(ObsAutoRecordState::DISCONNECTED);
     }
 }
