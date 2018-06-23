@@ -18,6 +18,7 @@ And if you want to move dependencies:
 ```
 windeployqt obsautorecord.exe
 ```
+You can also use UPX to compress the DLL files is desired.
 ### Mac
 Install [Qt Creator](https://www.qt.io/download) (with MacOS support in newest Qt version)
 ```
