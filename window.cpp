@@ -37,7 +37,7 @@ Window::Window() :
         settings.value("interval", DEFAULT_INTERVAL).toInt(),
         settings.value("folder", "").toString(),
         getAppsToWatch(),
-        true,
+        false,
         this);
 
     QObject::connect(oar, SIGNAL(onStateUpdate(ObsAutoRecordState)),
