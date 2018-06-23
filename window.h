@@ -48,6 +48,7 @@ private slots:
     void appsToWatchChanged();
     void appSelected();
     void updateState(ObsAutoRecordState state);
+    void toggleWindow();
 
 private:
     void createGeneralGroupBox();
@@ -70,7 +71,7 @@ private:
     QPushButton *appSelectButton;
     QPushButton *appRemoveButton;
 
-    QAction *showAction;
+    QAction *showHideAction;
     QAction *quitAction;
 
     QSystemTrayIcon *trayIcon;

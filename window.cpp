@@ -86,7 +86,7 @@ std::set<std::string> Window::getAppsToWatch()
 
 void Window::setVisible(bool visible)
 {
-    showAction->setEnabled(isMaximized() || !visible);
+    showHideAction->setText(visible ? tr("&Hide") : tr("&Show"));
     QDialog::setVisible(visible);
 }
 
@@ -107,11 +107,7 @@ void Window::iconActivated(QSystemTrayIcon::ActivationReason reason)
 {
     switch (reason) {
     case QSystemTrayIcon::DoubleClick:
-        setVisible(!isVisible());
-        if (isVisible()) {
-            raise();
-            activateWindow();
-        }
+        toggleWindow();
         break;
     default:
         ;
@@ -213,6 +209,15 @@ void Window::updateState(ObsAutoRecordState state)
     setWindowIcon(trayIcons.value(state));
 }
 
+void Window::toggleWindow()
+{
+    setVisible(!isVisible());
+    if (isVisible()) {
+        raise();
+        activateWindow();
+    }
+}
+
 void Window::createGeneralGroupBox()
 {
     generalGroupBox = new QGroupBox(tr("General Settings"));
@@ -276,8 +281,8 @@ void Window::createGeneralGroupBox()
 
 void Window::createActions()
 {
-    showAction = new QAction(tr("&Show"), this);
-    connect(showAction, &QAction::triggered, this, &QWidget::showNormal);
+    showHideAction = new QAction(tr("&Show"), this);
+    connect(showHideAction, &QAction::triggered, this, &Window::toggleWindow);
 
     quitAction = new QAction(tr("&Quit"), this);
     connect(quitAction, &QAction::triggered, qApp, &QCoreApplication::quit);
@@ -286,7 +291,7 @@ void Window::createActions()
 void Window::createTrayIcon()
 {
     trayIconMenu = new QMenu(this);
-    trayIconMenu->addAction(showAction);
+    trayIconMenu->addAction(showHideAction);
     trayIconMenu->addSeparator();
     trayIconMenu->addAction(quitAction);
 
