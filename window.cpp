@@ -1,4 +1,4 @@
-#include "window.h"
+#include "window.hpp"
 
 #ifndef QT_NO_SYSTEMTRAYICON
 
@@ -32,11 +32,12 @@ Window::Window() :
 {
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
+    std::unordered_map<std::string, std::string> appsToWatch = getAppsToWatch();
     oar = new ObsAutoRecord(
         QUrl(settings.value("address", DEFAULT_ADDRESS).toString()),
         settings.value("interval", DEFAULT_INTERVAL).toInt(),
         settings.value("folder", "").toString(),
-        getAppsToWatch(),
+        appsToWatch,
         false,
         this);
 
@@ -169,7 +170,7 @@ void Window::selectApp()
             for (QUrl file : files) {
                 QString appPath = file.toLocalFile();
                 QString appName = QString::fromStdString(
-                    ObsUtils::getNameFromAppPath(QDir::toNativeSeparators(appPath).toStdString()));
+                    ObsUtils::getNameFromAppPath(&QDir::toNativeSeparators(appPath).toStdString()));
                 QFileInfo fi(appPath);
                 QFileSystemModel *model = new QFileSystemModel;
                 model->setRootPath(fi.path());
