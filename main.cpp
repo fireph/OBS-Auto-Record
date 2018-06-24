@@ -29,8 +29,8 @@ int main(int argc, char *argv[])
 
 #else
 
-#include <QLabel>
 #include <QDebug>
+#include <QLabel>
 
 int main(int argc, char *argv[])
 {
