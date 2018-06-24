@@ -6,9 +6,9 @@ namespace ObsUtils
     std::string getOpenApp(std::unordered_map<std::string, std::string> &appsToWatch)
     {
         std::set<std::string> appsOpen;
-        #ifdef WIN32
+#ifdef WIN32
         EnumWindows(EnumWindowsProcOpenApps, reinterpret_cast<LPARAM>(&appsOpen));
-        #endif
+#endif
         for (const auto &appToWatch : appsToWatch)
         {
             if (appsOpen.find(appToWatch.first) != appsOpen.end())
@@ -20,7 +20,7 @@ namespace ObsUtils
     }
 
     std::string getNameFromAppPath(std::string *appPath) {
-        #ifdef WIN32
+#ifdef WIN32
         const char *exe = appPath->c_str();
         DWORD dwHandle;
         DWORD dwLen = GetFileVersionInfoSizeA(exe, &dwHandle);
@@ -81,11 +81,11 @@ namespace ObsUtils
         {
             return appExe;
         }
-        #endif
+#endif
         return "";
     }
 
-    #ifdef WIN32
+#ifdef WIN32
     BOOL GetTranslationId(LPVOID lpData, UINT unBlockSize, WORD wLangId, DWORD &dwId, BOOL bPrimaryEnough/*= FALSE*/)
     {
         LPWORD lpwData;
@@ -134,6 +134,6 @@ namespace ObsUtils
 
         return TRUE;
     }
-    #endif
+#endif
 
 }

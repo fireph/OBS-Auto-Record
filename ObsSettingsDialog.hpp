@@ -1,39 +1,33 @@
-#ifndef WINDOW_H
-#define WINDOW_H
-
-#include <unordered_map>
+#ifndef OBSSETTINGSDIALOG_H
+#define OBSSETTINGSDIALOG_H
 
 #include <QSystemTrayIcon>
 
 #ifndef QT_NO_SYSTEMTRAYICON
 
+#include <QAction>
 #include <QDialog>
-#include <QSettings>
-#include <QString>
-#include <QSet>
+#include <QGroupBox>
+#include <QLabel>
+#include <QLineEdit>
+#include <QListWidget>
 #include <QListWidgetItem>
-#include "ObsUtils.hpp"
+#include <QMenu>
+#include <QPushButton>
+#include <QSettings>
+#include <QSpinBox>
+#include <QString>
+
 #include "ObsAutoRecord.hpp"
 #include "ObsAutoRecordState.hpp"
+#include "ObsUtils.hpp"
 
-class QAction;
-class QCheckBox;
-class QComboBox;
-class QGroupBox;
-class QLabel;
-class QLineEdit;
-class QMenu;
-class QPushButton;
-class QSpinBox;
-class QTextEdit;
-class QListWidget;
-
-class Window : public QDialog
+class ObsSettingsDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    Window();
+    ObsSettingsDialog();
 
     std::unordered_map<std::string, std::string> getAppsToWatch();
     void setVisible(bool visible) override;
@@ -92,4 +86,4 @@ private:
 
 #endif // QT_NO_SYSTEMTRAYICON
 
-#endif
+#endif // OBSSETTINGSDIALOG_H
