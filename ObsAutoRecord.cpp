@@ -1,5 +1,5 @@
 #include "ObsAutoRecord.hpp"
-#include <set>
+
 #include <QJsonDocument>
 #include <QtCore/QDebug>
 

@@ -1,33 +1,20 @@
-#include "window.hpp"
+#include "ObsSettingsDialog.hpp"
 
 #ifndef QT_NO_SYSTEMTRAYICON
 
-#include <QtCore/QObject>
-#include <QAction>
-#include <QCheckBox>
-#include <QComboBox>
-#include <QCoreApplication>
-#include <QCloseEvent>
-#include <QGroupBox>
-#include <QLabel>
-#include <QLineEdit>
-#include <QMenu>
-#include <QPushButton>
-#include <QSpinBox>
-#include <QTextEdit>
-#include <QtGlobal>
-#include <QVBoxLayout>
-#include <QMessageBox>
-#include <QFileDialog>
-#include <QListWidget>
-#include <QFileInfo>
-#include <QFileSystemModel>
 #include <QBuffer>
 #include <QByteArray>
+#include <QCloseEvent>
+#include <QCoreApplication>
 #include <QDir>
+#include <QFileDialog>
+#include <QFileInfo>
+#include <QFileSystemModel>
 #include <QInputDialog>
+#include <QtCore/QObject>
+#include <QVBoxLayout>
 
-Window::Window() :
+ObsSettingsDialog::ObsSettingsDialog() :
     settings("DungFu", "OBS Auto Record")
 {
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
@@ -50,15 +37,15 @@ Window::Window() :
     createTrayIcon();
 
     connect(intervalSpinBox, QOverload<int>::of(&QSpinBox::valueChanged),
-            this, &Window::intervalChanged);
-    connect(addressEdit, &QLineEdit::textChanged, this, &Window::addressChanged);
-    connect(folderEdit, &QLineEdit::textChanged, this, &Window::folderChanged);
-    connect(folderSelectButton, &QAbstractButton::clicked, this, &Window::selectFolder);
-    connect(appSelectButton, &QAbstractButton::clicked, this, &Window::selectApp);
-    connect(appRemoveButton, &QAbstractButton::clicked, this, &Window::removeApp);
-    connect(appList, &QListWidget::itemSelectionChanged, this, &Window::appSelected);
+            this, &ObsSettingsDialog::intervalChanged);
+    connect(addressEdit, &QLineEdit::textChanged, this, &ObsSettingsDialog::addressChanged);
+    connect(folderEdit, &QLineEdit::textChanged, this, &ObsSettingsDialog::folderChanged);
+    connect(folderSelectButton, &QAbstractButton::clicked, this, &ObsSettingsDialog::selectFolder);
+    connect(appSelectButton, &QAbstractButton::clicked, this, &ObsSettingsDialog::selectApp);
+    connect(appRemoveButton, &QAbstractButton::clicked, this, &ObsSettingsDialog::removeApp);
+    connect(appList, &QListWidget::itemSelectionChanged, this, &ObsSettingsDialog::appSelected);
     connect(appList, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(appEdit(QListWidgetItem*)));
-    connect(trayIcon, &QSystemTrayIcon::activated, this, &Window::iconActivated);
+    connect(trayIcon, &QSystemTrayIcon::activated, this, &ObsSettingsDialog::iconActivated);
 
     QVBoxLayout *mainLayout = new QVBoxLayout;
     mainLayout->addWidget(generalGroupBox);
@@ -82,7 +69,7 @@ Window::Window() :
     setWindowTitle(tr("OBS Auto Record"));
 }
 
-std::unordered_map<std::string, std::string> Window::getAppsToWatch()
+std::unordered_map<std::string, std::string> ObsSettingsDialog::getAppsToWatch()
 {
     std::unordered_map<std::string, std::string> appsToWatch;
     int size = settings.beginReadArray("appsToWatch");
@@ -96,13 +83,13 @@ std::unordered_map<std::string, std::string> Window::getAppsToWatch()
     return appsToWatch;
 }
 
-void Window::setVisible(bool visible)
+void ObsSettingsDialog::setVisible(bool visible)
 {
     showHideAction->setText(visible ? tr("&Hide") : tr("&Show"));
     QDialog::setVisible(visible);
 }
 
-void Window::closeEvent(QCloseEvent *event)
+void ObsSettingsDialog::closeEvent(QCloseEvent *event)
 {
 #ifdef Q_OS_OSX
     if (!event->spontaneous() || !isVisible()) {
@@ -115,7 +102,7 @@ void Window::closeEvent(QCloseEvent *event)
     }
 }
 
-void Window::iconActivated(QSystemTrayIcon::ActivationReason reason)
+void ObsSettingsDialog::iconActivated(QSystemTrayIcon::ActivationReason reason)
 {
     switch (reason) {
     case QSystemTrayIcon::DoubleClick:
@@ -126,25 +113,25 @@ void Window::iconActivated(QSystemTrayIcon::ActivationReason reason)
     }
 }
 
-void Window::intervalChanged()
+void ObsSettingsDialog::intervalChanged()
 {
     settings.setValue("interval", intervalSpinBox->value());
     oar->setInterval(intervalSpinBox->value());
 }
 
-void Window::addressChanged()
+void ObsSettingsDialog::addressChanged()
 {
     settings.setValue("address", addressEdit->text());
     oar->setAddress(QUrl(addressEdit->text()));
 }
 
-void Window::folderChanged()
+void ObsSettingsDialog::folderChanged()
 {
     settings.setValue("folder", folderEdit->text());
     oar->setFolder(folderEdit->text());
 }
 
-void Window::selectFolder()
+void ObsSettingsDialog::selectFolder()
 {
     QFileDialog dialog(this);
     dialog.setFileMode(QFileDialog::Directory);
@@ -156,7 +143,7 @@ void Window::selectFolder()
     }
 }
 
-void Window::selectApp()
+void ObsSettingsDialog::selectApp()
 {
     QFileDialog dialog(this);
     dialog.setFileMode(QFileDialog::ExistingFiles);
@@ -185,12 +172,12 @@ void Window::selectApp()
     }
 }
 
-void Window::removeApp()
+void ObsSettingsDialog::removeApp()
 {
     qDeleteAll(appList->selectedItems());
 }
 
-void Window::appsToWatchChanged()
+void ObsSettingsDialog::appsToWatchChanged()
 {
     settings.remove("appsToWatch");
     settings.beginWriteArray("appsToWatch");
@@ -214,19 +201,19 @@ void Window::appsToWatchChanged()
     oar->setAppsToWatch(appsToWatch);
 }
 
-void Window::appSelected()
+void ObsSettingsDialog::appSelected()
 {
     appRemoveButton->setEnabled(!appList->selectedItems().isEmpty());
 }
 
-void Window::updateState(ObsAutoRecordState state)
+void ObsSettingsDialog::updateState(ObsAutoRecordState state)
 {
     trayIcon->setIcon(trayIcons.value(state));
     trayIcon->setToolTip(trayToolTips.value(state));
     setWindowIcon(trayIcons.value(state));
 }
 
-void Window::toggleWindow()
+void ObsSettingsDialog::toggleWindow()
 {
     setVisible(!isVisible());
     if (isVisible()) {
@@ -235,7 +222,7 @@ void Window::toggleWindow()
     }
 }
 
-void Window::appEdit(QListWidgetItem* app)
+void ObsSettingsDialog::appEdit(QListWidgetItem* app)
 {
     bool ok;
     QString newName =
@@ -246,7 +233,7 @@ void Window::appEdit(QListWidgetItem* app)
         app->setText(newName);
 }
 
-void Window::createGeneralGroupBox()
+void ObsSettingsDialog::createGeneralGroupBox()
 {
     generalGroupBox = new QGroupBox(tr("General Settings"));
 
@@ -291,9 +278,9 @@ void Window::createGeneralGroupBox()
     }
     settings.endArray();
 
-    connect(appList->model(), &QAbstractListModel::rowsInserted, this, &Window::appsToWatchChanged);
-    connect(appList->model(), &QAbstractListModel::rowsRemoved, this, &Window::appsToWatchChanged);
-    connect(appList->model(), &QAbstractListModel::dataChanged, this, &Window::appsToWatchChanged);
+    connect(appList->model(), &QAbstractListModel::rowsInserted, this, &ObsSettingsDialog::appsToWatchChanged);
+    connect(appList->model(), &QAbstractListModel::rowsRemoved, this, &ObsSettingsDialog::appsToWatchChanged);
+    connect(appList->model(), &QAbstractListModel::dataChanged, this, &ObsSettingsDialog::appsToWatchChanged);
 
     QGridLayout *messageLayout = new QGridLayout;
     messageLayout->addWidget(intervalLabel, 1, 0);
@@ -309,16 +296,16 @@ void Window::createGeneralGroupBox()
     generalGroupBox->setLayout(messageLayout);
 }
 
-void Window::createActions()
+void ObsSettingsDialog::createActions()
 {
     showHideAction = new QAction(tr("&Show"), this);
-    connect(showHideAction, &QAction::triggered, this, &Window::toggleWindow);
+    connect(showHideAction, &QAction::triggered, this, &ObsSettingsDialog::toggleWindow);
 
     quitAction = new QAction(tr("&Quit"), this);
     connect(quitAction, &QAction::triggered, qApp, &QCoreApplication::quit);
 }
 
-void Window::createTrayIcon()
+void ObsSettingsDialog::createTrayIcon()
 {
     trayIconMenu = new QMenu(this);
     trayIconMenu->addAction(showHideAction);

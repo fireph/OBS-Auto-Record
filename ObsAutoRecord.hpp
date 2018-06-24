@@ -1,13 +1,13 @@
 #ifndef OBSAUTORECORD_H
 #define OBSAUTORECORD_H
 
-#include <string>
 #include <QJsonObject>
 #include <QtCore/QObject>
 #include <QTimer>
+
+#include "ObsAutoRecordState.hpp"
 #include "ObsUtils.hpp"
 #include "ObsWebSocket.hpp"
-#include "ObsAutoRecordState.hpp"
 
 class ObsAutoRecord : public QObject
 {

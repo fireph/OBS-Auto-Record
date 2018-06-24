@@ -4,7 +4,8 @@
 
 #include <QMessageBox>
 #include <QtCore/QObject>
-#include "window.hpp"
+
+#include "ObsSettingsDialog.hpp"
 
 int main(int argc, char *argv[])
 {
@@ -21,8 +22,7 @@ int main(int argc, char *argv[])
     }
     QApplication::setQuitOnLastWindowClosed(false);
 
-    Window window;
-    // window.show();
+    ObsSettingsDialog settingsDialog;
 
     return app.exec();
 }

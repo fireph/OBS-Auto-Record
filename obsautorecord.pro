@@ -1,14 +1,14 @@
-HEADERS       = window.hpp \
-                ObsWebSocket.hpp \
-                ObsUtils.hpp \
-                ObsAutoRecordState.hpp \
-                ObsAutoRecord.hpp
-SOURCES       = main.cpp \
-                window.cpp \
-                ObsWebSocket.cpp \
-                ObsUtils.cpp \
-                ObsAutoRecord.cpp
-RESOURCES     = obsautorecord.qrc
+HEADERS   = ObsAutoRecord.hpp \
+            ObsAutoRecordState.hpp \
+            ObsSettingsDialog.hpp \
+            ObsUtils.hpp \
+            ObsWebSocket.hpp
+SOURCES   = main.cpp \
+            ObsAutoRecord.cpp \
+            ObsSettingsDialog.cpp \
+            ObsUtils.cpp \
+            ObsWebSocket.cpp
+RESOURCES = obsautorecord.qrc
 
 release: DESTDIR = release/
 debug:   DESTDIR = debug/

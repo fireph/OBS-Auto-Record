@@ -1,7 +1,6 @@
 #ifndef OBSUTILS_H
 #define OBSUTILS_H
 
-#include <string>
 #include <set>
 #include <unordered_map>
 #ifdef WIN32
