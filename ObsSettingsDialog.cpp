@@ -11,7 +11,6 @@
 #include <QFileInfo>
 #include <QFileSystemModel>
 #include <QInputDialog>
-#include <QtCore/QObject>
 #include <QVBoxLayout>
 
 ObsSettingsDialog::ObsSettingsDialog() :
@@ -28,8 +27,8 @@ ObsSettingsDialog::ObsSettingsDialog() :
         false,
         this);
 
-    QObject::connect(oar, SIGNAL(onStateUpdate(ObsAutoRecordState)),
-                     this, SLOT(updateState(ObsAutoRecordState)));
+    connect(oar, SIGNAL(onStateUpdate(ObsAutoRecordState)),
+            this, SLOT(updateState(ObsAutoRecordState)));
 
     createGeneralGroupBox();
 
