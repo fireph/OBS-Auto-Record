@@ -1,8 +1,8 @@
-HEADERS       = window.h \
-                ObsWebSocket.h \
-                ObsUtils.h \
-                ObsAutoRecordState.h \
-                ObsAutoRecord.h
+HEADERS       = window.hpp \
+                ObsWebSocket.hpp \
+                ObsUtils.hpp \
+                ObsAutoRecordState.hpp \
+                ObsAutoRecord.hpp
 SOURCES       = main.cpp \
                 window.cpp \
                 ObsWebSocket.cpp \
@@ -12,7 +12,6 @@ RESOURCES     = obsautorecord.qrc
 
 release: DESTDIR = release/
 debug:   DESTDIR = debug/
-profile: DESTDIR = profile/
 
 OBJECTS_DIR = $$DESTDIR/.obj
 MOC_DIR = $$DESTDIR/.moc

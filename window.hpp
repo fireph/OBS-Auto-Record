@@ -12,9 +12,9 @@
 #include <QString>
 #include <QSet>
 #include <QListWidgetItem>
-#include "ObsUtils.h"
-#include "ObsAutoRecord.h"
-#include "ObsAutoRecordState.h"
+#include "ObsUtils.hpp"
+#include "ObsAutoRecord.hpp"
+#include "ObsAutoRecordState.hpp"
 
 class QAction;
 class QCheckBox;

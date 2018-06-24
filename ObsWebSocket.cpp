@@ -1,4 +1,4 @@
-#include "ObsWebSocket.h"
+#include "ObsWebSocket.hpp"
 #include <QJsonDocument>
 #include <QtCore/QDebug>
 

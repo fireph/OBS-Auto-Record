@@ -5,9 +5,9 @@
 #include <QJsonObject>
 #include <QtCore/QObject>
 #include <QTimer>
-#include "ObsUtils.h"
-#include "ObsWebSocket.h"
-#include "ObsAutoRecordState.h"
+#include "ObsUtils.hpp"
+#include "ObsWebSocket.hpp"
+#include "ObsAutoRecordState.hpp"
 
 class ObsAutoRecord : public QObject
 {
@@ -17,13 +17,13 @@ public:
         const QUrl &url,
         const int interval,
         const QString &folder,
-        std::unordered_map<std::string, std::string> appsToWatch,
+        std::unordered_map<std::string, std::string> &appsToWatch,
         bool debug = false,
         QObject *parent = nullptr);
     void setAddress(const QUrl &url);
     void setInterval(const int interval);
     void setFolder(const QString &folder);
-    void setAppsToWatch(std::unordered_map<std::string, std::string> appsToWatch);
+    void setAppsToWatch(std::unordered_map<std::string, std::string> &appsToWatch);
 
 signals:
     void onStateUpdate(ObsAutoRecordState state);

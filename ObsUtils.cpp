@@ -1,9 +1,9 @@
-#include "ObsUtils.h"
+#include "ObsUtils.hpp"
 
 namespace ObsUtils
 {
 
-    std::string getOpenApp(std::unordered_map<std::string, std::string> appsToWatch)
+    std::string getOpenApp(std::unordered_map<std::string, std::string> &appsToWatch)
     {
         std::set<std::string> appsOpen;
         #ifdef WIN32
@@ -19,9 +19,9 @@ namespace ObsUtils
         return "";
     }
 
-    std::string getNameFromAppPath(std::string appPath) {
+    std::string getNameFromAppPath(std::string *appPath) {
         #ifdef WIN32
-        const char *exe = appPath.c_str();
+        const char *exe = appPath->c_str();
         DWORD dwHandle;
         DWORD dwLen = GetFileVersionInfoSizeA(exe, &dwHandle);
         if (dwLen != 0)
@@ -72,7 +72,7 @@ namespace ObsUtils
             }
         }
 
-        std::string appExe = appPath.substr(appPath.find_last_of("\\") + 1);
+        std::string appExe = appPath->substr(appPath->find_last_of("\\") + 1);
         if (appExe.size() >= 4 && appExe.compare(appExe.size() - 4, 4, ".exe") == 0)
         {
             return appExe.substr(0, appExe.size() - 4);

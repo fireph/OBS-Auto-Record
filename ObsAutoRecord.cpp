@@ -1,4 +1,4 @@
-#include "ObsAutoRecord.h"
+#include "ObsAutoRecord.hpp"
 #include <set>
 #include <QJsonDocument>
 #include <QtCore/QDebug>
@@ -9,7 +9,7 @@ ObsAutoRecord::ObsAutoRecord(
     const QUrl &url,
     const int interval,
     const QString &folder,
-    std::unordered_map<std::string, std::string> appsToWatch,
+    std::unordered_map<std::string, std::string> &appsToWatch,
     bool debug,
     QObject *parent) :
         QObject(parent),
@@ -45,7 +45,7 @@ void ObsAutoRecord::setFolder(const QString &folder)
     m_folder = folder;
 }
 
-void  ObsAutoRecord::setAppsToWatch(std::unordered_map<std::string, std::string> appsToWatch)
+void  ObsAutoRecord::setAppsToWatch(std::unordered_map<std::string, std::string> &appsToWatch)
 {
     m_appsToWatch = appsToWatch;
 }

@@ -10,12 +10,12 @@
 
 namespace ObsUtils
 {
-    std::string getOpenApp(std::unordered_map<std::string, std::string> appsToWatch);
-    std::string getNameFromAppPath(std::string appPath);
+    std::string getOpenApp(std::unordered_map<std::string, std::string> &appsToWatch);
+    std::string getNameFromAppPath(std::string *appPath);
 #ifdef WIN32
     static BOOL GetTranslationId(LPVOID lpData, UINT unBlockSize, WORD wLangId, DWORD &dwId, BOOL bPrimaryEnough = FALSE);
     static BOOL CALLBACK EnumWindowsProcOpenApps(HWND hwnd, LPARAM lParam);
 #endif
-};
+}
 
 #endif // OBSUTILS_H

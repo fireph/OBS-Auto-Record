@@ -4,7 +4,7 @@
 
 #include <QMessageBox>
 #include <QtCore/QObject>
-#include "window.h"
+#include "window.hpp"
 
 int main(int argc, char *argv[])
 {
