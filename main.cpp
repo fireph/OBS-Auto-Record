@@ -25,8 +25,11 @@ int main(int argc, char *argv[])
 
     auto settingsDialog = new ObsSettingsDialog();
 
-    auto hotkey = new QHotkey(QKeySequence("ctrl+alt+end"), true, &app);
+    auto hotkey = new QHotkey(settingsDialog->getPauseHotkey(), true, &app);
     QObject::connect(hotkey, &QHotkey::activated, settingsDialog, &ObsSettingsDialog::togglePaused);
+    QObject::connect(settingsDialog, QOverload<QKeySequence>::of(&ObsSettingsDialog::onPauseHotkeyUpdated), [&](QKeySequence pauseHotkey) {
+         hotkey->setShortcut(pauseHotkey, true);
+    });
 
     return app.exec();
 }
