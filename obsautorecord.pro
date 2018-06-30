@@ -32,3 +32,5 @@ win32: RC_ICONS += images/record_red.ico
 
 QT += websockets widgets
 requires(qtConfig(combobox))
+
+include(vendor/vendor.pri)
