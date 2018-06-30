@@ -71,6 +71,7 @@ private:
     QPushButton *appRemoveButton;
 
     QAction *showHideAction;
+    QAction *pauseResumeAction;
     QAction *quitAction;
 
     QSystemTrayIcon *trayIcon;

@@ -207,9 +207,15 @@ void ObsSettingsDialog::appSelected()
 
 void ObsSettingsDialog::updateState(ObsAutoRecordState state)
 {
+    if (state == ObsAutoRecordState::PAUSED) {
+        pauseResumeAction->setText(tr("&Resume"));
+    } else {
+        pauseResumeAction->setText(tr("&Pause"));
+    }
     trayIcon->setIcon(trayIcons.value(state));
     trayIcon->setToolTip(trayToolTips.value(state));
     setWindowIcon(trayIcons.value(state));
+    setWindowTitle(trayToolTips.value(state));
 }
 
 void ObsSettingsDialog::toggleWindow()
@@ -300,6 +306,9 @@ void ObsSettingsDialog::createActions()
     showHideAction = new QAction(tr("&Show"), this);
     connect(showHideAction, &QAction::triggered, this, &ObsSettingsDialog::toggleWindow);
 
+    pauseResumeAction = new QAction(tr("&Pause"), this);
+    connect(pauseResumeAction, &QAction::triggered, oar, &ObsAutoRecord::toggleIsPaused);
+
     quitAction = new QAction(tr("&Quit"), this);
     connect(quitAction, &QAction::triggered, qApp, &QCoreApplication::quit);
 }
@@ -308,6 +317,7 @@ void ObsSettingsDialog::createTrayIcon()
 {
     trayIconMenu = new QMenu(this);
     trayIconMenu->addAction(showHideAction);
+    trayIconMenu->addAction(pauseResumeAction);
     trayIconMenu->addSeparator();
     trayIconMenu->addAction(quitAction);
 
