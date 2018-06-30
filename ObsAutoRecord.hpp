@@ -28,6 +28,9 @@ public:
 signals:
     void onStateUpdate(ObsAutoRecordState state);
 
+public slots:
+    void toggleIsPaused();
+
 private slots:
     void pingStatus();
     void startRecording(); 
@@ -37,6 +40,7 @@ private slots:
     void setIsConnected(bool isConnected);
 
 private:
+    void internalUpdateState();
     ObsWebSocket m_obsWebSocket;
     QUrl m_url;
     QString m_folder;
@@ -46,6 +50,8 @@ private:
     QTimer *timer;
     QString defaultFilenameFormatting = "%CCYY-%MM-%DD %hh-%mm-%ss";
     std::set<int> idsWaitToRecord;
+    bool m_isConnected = false;
+    bool m_isPaused = false;
 };
 
 #endif // OBSAUTORECORD_H

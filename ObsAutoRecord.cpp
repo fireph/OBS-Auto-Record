@@ -50,6 +50,12 @@ void  ObsAutoRecord::setAppsToWatch(std::unordered_map<std::string, std::string>
     m_appsToWatch = appsToWatch;
 }
 
+void ObsAutoRecord::toggleIsPaused()
+{
+    m_isPaused = !m_isPaused;
+    internalUpdateState();
+}
+
 void ObsAutoRecord::pingStatus()
 {
     if (m_obsWebSocket.isConnected()) {
@@ -107,7 +113,7 @@ void ObsAutoRecord::onStatus(QJsonObject msg)
     if (msg.contains("recording") && idsWaitToRecord.empty()) {
         bool recording = msg.value("recording").toBool();
         QString openApp = QString::fromStdString(ObsUtils::getOpenApp(m_appsToWatch));
-        if (!recording && !openApp.isEmpty()) {
+        if (!recording && !openApp.isEmpty() && !m_isPaused) {
             if (m_debug) {
                 qDebug() << "App found: " << openApp;
             }
@@ -141,7 +147,7 @@ void ObsAutoRecord::onStatus(QJsonObject msg)
             m_msgid++;
             idsWaitToRecord.insert(m_msgid);
             setFilenameFormatting(openApp, m_msgid);
-        } else if (recording && openApp.isEmpty()) {
+        } else if (recording && (openApp.isEmpty() || m_isPaused)) {
             m_msgid++;
             m_obsWebSocket.sendRequest("StopRecording", m_msgid);
             changeFolderBack();
@@ -151,10 +157,20 @@ void ObsAutoRecord::onStatus(QJsonObject msg)
 
 void ObsAutoRecord::setIsConnected(bool isConnected)
 {
-    if (isConnected) {
-        emit onStateUpdate(ObsAutoRecordState::CONNECTED);
+    m_isConnected = isConnected;
+    internalUpdateState();
+}
+
+void ObsAutoRecord::internalUpdateState()
+{
+    if (m_isPaused) {
+        emit onStateUpdate(ObsAutoRecordState::PAUSED);
     } else {
-        idsWaitToRecord.clear();
-        emit onStateUpdate(ObsAutoRecordState::DISCONNECTED);
+        if (m_isConnected) {
+            emit onStateUpdate(ObsAutoRecordState::CONNECTED);
+        } else {
+            idsWaitToRecord.clear();
+            emit onStateUpdate(ObsAutoRecordState::DISCONNECTED);
+        }
     }
 }
