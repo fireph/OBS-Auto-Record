@@ -8,6 +8,7 @@
 #include <QAction>
 #include <QDialog>
 #include <QGroupBox>
+#include <QKeySequenceEdit>
 #include <QLabel>
 #include <QLineEdit>
 #include <QListWidget>
@@ -31,9 +32,13 @@ public:
 
     std::unordered_map<std::string, std::string> getAppsToWatch();
     void setVisible(bool visible) override;
+    QKeySequence getPauseHotkey();
 
 protected:
     void closeEvent(QCloseEvent *event) override;
+
+signals:
+    void onPauseHotkeyUpdated(QKeySequence pauseHotkey);
 
 public slots:
     void togglePaused();
@@ -51,6 +56,7 @@ private slots:
     void updateState(ObsAutoRecordState state);
     void toggleWindow();
     void appEdit(QListWidgetItem* app);
+    void pauseHotkeyChanged();
 
 private:
     void createGeneralGroupBox();
@@ -65,10 +71,12 @@ private:
     QLabel *intervalLabel;
     QLabel *addressLabel;
     QLabel *folderLabel;
+    QLabel *pauseHotkeyLabel;
     QSpinBox *intervalSpinBox;
     QLineEdit *addressEdit;
     QLineEdit *folderEdit;
     QPushButton *folderSelectButton;
+    QKeySequenceEdit *pauseHotkeyEdit;
     QListWidget *appList;
     QPushButton *appSelectButton;
     QPushButton *appRemoveButton;
@@ -86,6 +94,7 @@ private:
     const int DEFAULT_INTERVAL = 15;
     const QString DEFAULT_ADDRESS = "ws://localhost:4444";
     const QSize ICON_SIZE = QSize(32, 32);
+    const QString DEFAULT_PAUSE_HOTKEY = "Ctrl+Alt+End";
 };
 
 #endif // QT_NO_SYSTEMTRAYICON

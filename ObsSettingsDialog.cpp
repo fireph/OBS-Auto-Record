@@ -40,6 +40,7 @@ ObsSettingsDialog::ObsSettingsDialog() :
     connect(addressEdit, &QLineEdit::textChanged, this, &ObsSettingsDialog::addressChanged);
     connect(folderEdit, &QLineEdit::textChanged, this, &ObsSettingsDialog::folderChanged);
     connect(folderSelectButton, &QAbstractButton::clicked, this, &ObsSettingsDialog::selectFolder);
+    connect(pauseHotkeyEdit, &QKeySequenceEdit::editingFinished, this, &ObsSettingsDialog::pauseHotkeyChanged);
     connect(appSelectButton, &QAbstractButton::clicked, this, &ObsSettingsDialog::selectApp);
     connect(appRemoveButton, &QAbstractButton::clicked, this, &ObsSettingsDialog::removeApp);
     connect(appList, &QListWidget::itemSelectionChanged, this, &ObsSettingsDialog::appSelected);
@@ -86,6 +87,11 @@ void ObsSettingsDialog::setVisible(bool visible)
 {
     showHideAction->setText(visible ? tr("&Hide") : tr("&Show"));
     QDialog::setVisible(visible);
+}
+
+QKeySequence ObsSettingsDialog::getPauseHotkey()
+{
+    return QKeySequence(settings.value("pause_hotkey", DEFAULT_PAUSE_HOTKEY).toString());
 }
 
 void ObsSettingsDialog::closeEvent(QCloseEvent *event)
@@ -243,6 +249,15 @@ void ObsSettingsDialog::appEdit(QListWidgetItem* app)
         app->setText(newName);
 }
 
+void ObsSettingsDialog::pauseHotkeyChanged()
+{
+    int value = pauseHotkeyEdit->keySequence()[0];
+    QKeySequence shortcut(value);
+    pauseHotkeyEdit->setKeySequence(shortcut);
+    settings.setValue("pause_hotkey", shortcut.toString());
+    emit onPauseHotkeyUpdated(shortcut);
+}
+
 void ObsSettingsDialog::createGeneralGroupBox()
 {
     generalGroupBox = new QGroupBox(tr("General Settings"));
@@ -264,6 +279,10 @@ void ObsSettingsDialog::createGeneralGroupBox()
 
     folderSelectButton = new QPushButton(tr("Select Folder"));    
     folderSelectButton->setAutoDefault(false);
+
+    pauseHotkeyLabel = new QLabel(tr("Pause Hotkey:"));
+
+    pauseHotkeyEdit = new QKeySequenceEdit(getPauseHotkey());
 
     appSelectButton = new QPushButton(tr("Select Application"));    
     appSelectButton->setAutoDefault(false);
@@ -295,14 +314,20 @@ void ObsSettingsDialog::createGeneralGroupBox()
     QGridLayout *messageLayout = new QGridLayout;
     messageLayout->addWidget(intervalLabel, 1, 0);
     messageLayout->addWidget(intervalSpinBox, 1, 1);
+
     messageLayout->addWidget(addressLabel, 2, 0);
     messageLayout->addWidget(addressEdit, 2, 1, 1, 4);
+
     messageLayout->addWidget(folderLabel, 3, 0);
     messageLayout->addWidget(folderEdit, 3, 1, 1, 3);
     messageLayout->addWidget(folderSelectButton, 3, 4);
-    messageLayout->addWidget(appSelectButton, 4, 0);
-    messageLayout->addWidget(appRemoveButton, 4, 4);
-    messageLayout->addWidget(appList, 5, 0, 4, 5);
+
+    messageLayout->addWidget(pauseHotkeyLabel, 4, 0);
+    messageLayout->addWidget(pauseHotkeyEdit, 4, 1, 1, 4);
+
+    messageLayout->addWidget(appSelectButton, 5, 0);
+    messageLayout->addWidget(appRemoveButton, 5, 4);
+    messageLayout->addWidget(appList, 6, 0, 4, 5);
     generalGroupBox->setLayout(messageLayout);
 }
 
