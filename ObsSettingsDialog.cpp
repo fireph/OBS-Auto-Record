@@ -256,6 +256,7 @@ void ObsSettingsDialog::pauseHotkeyChanged()
     pauseHotkeyEdit->setKeySequence(shortcut);
     settings.setValue("pause_hotkey", shortcut.toString());
     emit onPauseHotkeyUpdated(shortcut);
+    pauseHotkeyEdit->clearFocus();
 }
 
 void ObsSettingsDialog::createGeneralGroupBox()
