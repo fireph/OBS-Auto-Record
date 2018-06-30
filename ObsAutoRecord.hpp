@@ -24,12 +24,10 @@ public:
     void setInterval(const int interval);
     void setFolder(const QString &folder);
     void setAppsToWatch(std::unordered_map<std::string, std::string> &appsToWatch);
+    void toggleIsPaused();
 
 signals:
     void onStateUpdate(ObsAutoRecordState state);
-
-public slots:
-    void toggleIsPaused();
 
 private slots:
     void pingStatus();

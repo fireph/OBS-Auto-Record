@@ -12,6 +12,9 @@ Controls OBS to auto record specific games when they are running (works on Windo
 ### Windows
 Install [Microsoft Visual Studio Code](https://code.visualstudio.com/download)
 Install [Qt Creator](https://www.qt.io/download) (with corresponding msvsc version in newest Qt version)
+```
+qpm install
+```
 Press the run button!
 
 And if you want to move dependencies:
@@ -21,7 +24,9 @@ windeployqt obsautorecord.exe
 You can also use UPX to compress the DLL files is desired.
 ### Mac
 Install [Qt Creator](https://www.qt.io/download) (with MacOS support in newest Qt version)
+
 ```
+qpm install
 qmake
 make
 open -a obsautorecord.app

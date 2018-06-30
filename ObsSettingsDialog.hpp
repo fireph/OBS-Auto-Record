@@ -35,6 +35,9 @@ public:
 protected:
     void closeEvent(QCloseEvent *event) override;
 
+public slots:
+    void togglePaused();
+
 private slots:
     void iconActivated(QSystemTrayIcon::ActivationReason reason);
     void intervalChanged();

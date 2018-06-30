@@ -2,6 +2,7 @@
 
 #ifndef QT_NO_SYSTEMTRAYICON
 
+#include <QHotkey>
 #include <QMessageBox>
 #include <QtCore/QObject>
 
@@ -22,7 +23,10 @@ int main(int argc, char *argv[])
     }
     QApplication::setQuitOnLastWindowClosed(false);
 
-    ObsSettingsDialog settingsDialog;
+    auto settingsDialog = new ObsSettingsDialog();
+
+    auto hotkey = new QHotkey(QKeySequence("ctrl+alt+end"), true, &app);
+    QObject::connect(hotkey, &QHotkey::activated, settingsDialog, &ObsSettingsDialog::togglePaused);
 
     return app.exec();
 }

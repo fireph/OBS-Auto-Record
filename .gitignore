@@ -44,4 +44,6 @@ Makefile.Release
 
 Thumbs.db
 
+vendor/
+
 dist/

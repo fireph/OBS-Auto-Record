@@ -101,6 +101,11 @@ void ObsSettingsDialog::closeEvent(QCloseEvent *event)
     }
 }
 
+void ObsSettingsDialog::togglePaused()
+{
+    oar->toggleIsPaused();
+}
+
 void ObsSettingsDialog::iconActivated(QSystemTrayIcon::ActivationReason reason)
 {
     switch (reason) {
