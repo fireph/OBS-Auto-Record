@@ -15,6 +15,7 @@ ObsAutoRecord::ObsAutoRecord(
         QObject(parent),
         m_obsWebSocket(url, debug, this),
         m_url(url),
+        m_interval(interval * 1000),
         m_folder(folder),
         m_appsToWatch(appsToWatch),
         m_debug(debug)
@@ -24,7 +25,7 @@ ObsAutoRecord::ObsAutoRecord(
     QObject::connect(&m_obsWebSocket, SIGNAL(connected(bool)),
                      this, SLOT(setIsConnected(bool)));
     timer = new QTimer;
-    timer->setInterval(interval * 1000);
+    timer->setInterval(m_interval);
     timer->start();
     connect(timer, SIGNAL(timeout()), this, SLOT(pingStatus()));
 }
@@ -37,7 +38,8 @@ void ObsAutoRecord::setAddress(const QUrl &url)
 
 void ObsAutoRecord::setInterval(const int interval)
 {
-    timer->setInterval(interval * 1000);
+    m_interval = interval * 1000;
+    timer->setInterval(m_interval);
 }
 
 void ObsAutoRecord::setFolder(const QString &folder)
@@ -54,6 +56,7 @@ void ObsAutoRecord::toggleIsPaused()
 {
     m_isPaused = !m_isPaused;
     internalUpdateState();
+    pingStatusOverrideTimer();
 }
 
 void ObsAutoRecord::pingStatus()
@@ -159,6 +162,15 @@ void ObsAutoRecord::setIsConnected(bool isConnected)
 {
     m_isConnected = isConnected;
     internalUpdateState();
+    pingStatusOverrideTimer();
+}
+
+void ObsAutoRecord::pingStatusOverrideTimer()
+{
+    if (m_isConnected) {
+        timer->setInterval(m_interval);
+        pingStatus();
+    }
 }
 
 void ObsAutoRecord::internalUpdateState()
