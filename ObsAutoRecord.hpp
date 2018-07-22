@@ -38,9 +38,11 @@ private slots:
     void setIsConnected(bool isConnected);
 
 private:
+    void pingStatusOverrideTimer();
     void internalUpdateState();
     ObsWebSocket m_obsWebSocket;
     QUrl m_url;
+    int m_interval;
     QString m_folder;
     std::unordered_map<std::string, std::string> m_appsToWatch;
     bool m_debug;
