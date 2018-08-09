@@ -158,8 +158,15 @@ void ObsSettingsDialog::selectApp()
     QFileDialog dialog(this);
     dialog.setFileMode(QFileDialog::ExistingFiles);
     QStringList filters;
-    filters << "Exe files (*.exe)"
-            << "Any files (*)";
+#ifdef WIN32
+    dialog.setDirectory("C:\\Program Files (x86)");
+    filters << "Exe files (*.exe)";
+#endif
+#ifdef __APPLE__
+    dialog.setDirectory("/Applications");
+    filters << "App files (*.app)";
+#endif
+    filters << "Any files (*)";
     dialog.setNameFilters(filters);
     if (dialog.exec()) {
         QList<QUrl> files = dialog.selectedUrls();
