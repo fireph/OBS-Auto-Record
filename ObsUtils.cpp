@@ -71,18 +71,20 @@ namespace ObsUtils
                 }
             }
         }
-
-        std::string appExe = appPath.substr(appPath.find_last_of("\\") + 1);
-        if (appExe.size() >= 4 && appExe.compare(appExe.size() - 4, 4, ".exe") == 0)
+        std::string appFile = appPath.substr(appPath.find_last_of("\\") + 1);
+#else
+        std::string appFile = appPath.substr(appPath.find_last_of("/") + 1);
+#endif
+        if (appFile.size() > 4
+            && (appFile.compare(appFile.size() - 4, 4, ".app") == 0
+                || appFile.compare(appFile.size() - 4, 4, ".exe") == 0))
         {
-            return appExe.substr(0, appExe.size() - 4);
+            return appFile.substr(0, appFile.size() - 4);
         }
         else
         {
-            return appExe;
+            return appFile;
         }
-#endif
-        return "";
     }
 
 #ifdef WIN32
