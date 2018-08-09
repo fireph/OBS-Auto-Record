@@ -167,7 +167,7 @@ void ObsSettingsDialog::selectApp()
             for (QUrl file : files) {
                 QString appPath = file.toLocalFile();
                 QString appName = QString::fromStdString(
-                    ObsUtils::getNameFromAppPath(&QDir::toNativeSeparators(appPath).toStdString()));
+                    ObsUtils::getNameFromAppPath(QDir::toNativeSeparators(appPath).toStdString()));
                 QFileInfo fi(appPath);
                 QFileSystemModel *model = new QFileSystemModel;
                 model->setRootPath(fi.path());
