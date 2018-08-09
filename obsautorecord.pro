@@ -13,6 +13,7 @@ RESOURCES = obsautorecord.qrc
 macx {
   HEADERS += ObsUtilsOSX.hpp
   OBJECTIVE_SOURCES += ObsUtilsOSX.mm
+  TARGET = "OBS Auto Record"
 }
 
 CONFIG(debug, debug|release) {
