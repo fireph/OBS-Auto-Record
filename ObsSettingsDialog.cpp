@@ -161,8 +161,7 @@ void ObsSettingsDialog::selectApp()
 #ifdef WIN32
     dialog.setDirectory("C:\\Program Files (x86)");
     filters << "Exe files (*.exe)";
-#endif
-#ifdef __APPLE__
+#elif __APPLE__
     dialog.setDirectory("/Applications");
     filters << "App files (*.app)";
 #endif

@@ -10,8 +10,16 @@ SOURCES   = main.cpp \
             ObsWebSocket.cpp
 RESOURCES = obsautorecord.qrc
 
-release: DESTDIR = release/
-debug:   DESTDIR = debug/
+macx {
+  HEADERS += ObsUtilsOSX.hpp
+  OBJECTIVE_SOURCES += ObsUtilsOSX.mm
+}
+
+CONFIG(debug, debug|release) {
+    DESTDIR = debug/
+} else {
+    DESTDIR = release/
+}
 
 OBJECTS_DIR = $$DESTDIR/.obj
 MOC_DIR = $$DESTDIR/.moc
@@ -29,6 +37,9 @@ QMAKE_TARGET_COPYRIGHT = "\251 2018 Frederick Meyer"
 msvc: LIBS += -luser32 -lVersion
 
 win32: RC_ICONS += images/record_red.ico
+macx: ICON = images/record_red.icns
+
+macx: LIBS += -framework AppKit
 
 QT += websockets widgets
 requires(qtConfig(combobox))

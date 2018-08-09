@@ -1,13 +1,22 @@
+#ifdef __APPLE__
+#include <libproc.h>
+#endif
+
 #include "ObsUtils.hpp"
+
+#include "ObsUtilsOSX.hpp"
 
 namespace ObsUtils
 {
 
     std::string getOpenApp(std::unordered_map<std::string, std::string> &appsToWatch)
     {
-        std::set<std::string> appsOpen;
+        
 #ifdef WIN32
+        std::set<std::string> appsOpen;
         EnumWindows(EnumWindowsProcOpenApps, reinterpret_cast<LPARAM>(&appsOpen));
+#elif __APPLE__
+        std::set<std::string> appsOpen = ObsUtilsOSX::getOpenApps();
 #endif
         for (const auto &appToWatch : appsToWatch)
         {

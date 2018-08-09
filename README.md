@@ -29,5 +29,5 @@ Install [Qt Creator](https://www.qt.io/download) (with MacOS support in newest Q
 qpm install
 qmake
 make
-open -a obsautorecord.app
+macdeployqt -dmg obsautorecord.app
 ```
