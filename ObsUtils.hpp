@@ -2,6 +2,7 @@
 #define OBSUTILS_H
 
 #include <set>
+#include <string>
 #include <unordered_map>
 #ifdef WIN32
 #include <windows.h>
