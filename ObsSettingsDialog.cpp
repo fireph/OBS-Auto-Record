@@ -77,7 +77,7 @@ std::unordered_map<std::string, std::string> ObsSettingsDialog::getAppsToWatch()
         settings.setArrayIndex(i);
         std::string filename = settings.value("filename").toString().toStdString();
         std::string name = settings.value("name").toString().toStdString();
-        appsToWatch.insert_or_assign(filename, name);
+        appsToWatch.emplace(filename, name);
     }
     settings.endArray();
     return appsToWatch;
@@ -205,7 +205,7 @@ void ObsSettingsDialog::appsToWatchChanged()
         settings.setValue("icon", bArray);
         std::string name = item->text().toStdString();
         std::string filename = item->data(Qt::UserRole).toString().toStdString();
-        appsToWatch.insert_or_assign(filename, name);
+        appsToWatch.emplace(filename, name);
     }
     settings.endArray();
     oar->setAppsToWatch(appsToWatch);
