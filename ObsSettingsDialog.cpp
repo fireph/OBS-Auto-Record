@@ -13,10 +13,18 @@
 #include <QInputDialog>
 #include <QVBoxLayout>
 
+#ifdef Q_OS_OSX
+#include "ObsUtilsOSX.hpp"
+#endif
+
 ObsSettingsDialog::ObsSettingsDialog() :
     settings("DungFu", "OBS Auto Record")
 {
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+
+#ifdef Q_OS_OSX
+    ObsUtilsOSX::hideDockIcon();
+#endif
 
     std::unordered_map<std::string, std::string> appsToWatch = getAppsToWatch();
     oar = new ObsAutoRecord(
@@ -87,6 +95,13 @@ void ObsSettingsDialog::setVisible(bool visible)
 {
     showHideAction->setText(visible ? tr("&Hide") : tr("&Show"));
     QDialog::setVisible(visible);
+#ifdef Q_OS_OSX
+    if (visible) {
+        ObsUtilsOSX::showDockIcon();
+    } else {
+        ObsUtilsOSX::hideDockIcon();
+    }
+#endif
 }
 
 QKeySequence ObsSettingsDialog::getPauseHotkey()

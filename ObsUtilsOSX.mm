@@ -25,4 +25,13 @@ namespace ObsUtilsOSX
         return appsOpen;
     }
 
+    void showDockIcon()
+    {
+        [NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
+    }
+
+    void hideDockIcon()
+    {
+        [NSApp setActivationPolicy:NSApplicationActivationPolicyProhibited];
+    }
 }
