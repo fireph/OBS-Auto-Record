@@ -1,21 +1,19 @@
-#ifdef __APPLE__
+#ifdef Q_OS_OSX
 #include <libproc.h>
+#include "ObsUtilsOSX.hpp"
 #endif
 
 #include "ObsUtils.hpp"
-
-#include "ObsUtilsOSX.hpp"
 
 namespace ObsUtils
 {
 
     std::string getOpenApp(std::unordered_map<std::string, std::string> &appsToWatch)
     {
-        
-#ifdef WIN32
         std::set<std::string> appsOpen;
+#ifdef Q_OS_WIN
         EnumWindows(EnumWindowsProcOpenApps, reinterpret_cast<LPARAM>(&appsOpen));
-#elif __APPLE__
+#elif Q_OS_OSX
         std::set<std::string> appsOpen = ObsUtilsOSX::getOpenApps();
 #endif
         for (const auto &appToWatch : appsToWatch)
@@ -29,7 +27,7 @@ namespace ObsUtils
     }
 
     std::string getNameFromAppPath(std::string appPath) {
-#ifdef WIN32
+#ifdef Q_OS_WIN
         const char *exe = appPath.c_str();
         DWORD dwHandle;
         DWORD dwLen = GetFileVersionInfoSizeA(exe, &dwHandle);
@@ -96,7 +94,7 @@ namespace ObsUtils
         }
     }
 
-#ifdef WIN32
+#ifdef Q_OS_WIN
     BOOL GetTranslationId(LPVOID lpData, UINT unBlockSize, WORD wLangId, DWORD &dwId, BOOL bPrimaryEnough/*= FALSE*/)
     {
         LPWORD lpwData;
