@@ -7,6 +7,8 @@ install:
   - go install qpm.io/qpm
   - dir %GOPATH%\bin
   - qpm install
+  - dir %QTDIR%
+  - dir %QTDIR%\bin
 build_script:
   - C:\Qt\5.11.1\msvc2017_64\bin\qmake.exe obsautorecord.pro
   - nmake
