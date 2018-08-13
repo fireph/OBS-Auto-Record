@@ -1,6 +1,5 @@
 install:
   - set QTDIR=C:\Qt\5.11.1\msvc2017_64
-  - set PATH=%PATH%;%QTDIR%\bin
 build_script:
-  - qmake
-  - nmake
+  - "$(QTDIR)\bin\qmake.exe" -o Makefile obsautorecord.pro
+  - "$(QTDIR)\bin\nmake.exe"
