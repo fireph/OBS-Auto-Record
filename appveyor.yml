@@ -1,4 +1,7 @@
+version: 2.0.{build}
+
 os: Visual Studio 2017
+
 install:
   - call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
   - set QTDIR=C:\Qt\5.11\msvc2017_64
@@ -7,8 +10,12 @@ install:
   - go get qpm.io/qpm
   - go install qpm.io/qpm
   - qpm install
+
 build_script:
   - qmake -config release
   - nmake
   - windeployqt --release --no-translations --no-angle --no-opengl-sw release/obsautorecord.exe
-  - dir release\
+  - 7z a ObsAutoRecord_win64_{version}.zip .\release\*
+  
+artifacts:
+  - path: ObsAutoRecord_win64_{version}.zip
