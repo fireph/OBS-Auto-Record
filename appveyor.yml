@@ -3,6 +3,7 @@ install:
   - set PATH=%QTDIR%\bin;C:\go\bin;%PATH%
   - go get qpm.io/qpm
   - go install qpm.io/qpm
+  - dir C:\go\bin
   - qpm install
 build_script:
   - qmake obsautorecord.pro
