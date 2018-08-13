@@ -8,5 +8,5 @@ install:
   - dir %GOPATH%\bin
   - qpm install
 build_script:
-  - %QTDIR%\bin\qmake.exe obsautorecord.pro
+  - C:\Qt\5.11.1\msvc2017_64\bin\qmake.exe obsautorecord.pro
   - nmake
