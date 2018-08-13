@@ -1,6 +1,7 @@
 install:
   - set QTDIR=C:\Qt\5.11.1\msvc2017_64
-  - set PATH=%QTDIR%\bin;%PATH%
+  - set GOPATH=c:\go
+  - set PATH=%QTDIR%\bin;%GOPATH%\bin;%PATH%
   - go get qpm.io/qpm
   - go install qpm.io/qpm
   - qpm install
