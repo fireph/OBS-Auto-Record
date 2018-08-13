@@ -1,9 +1,10 @@
 install:
   - set QTDIR=C:\Qt\5.11.1\msvc2017_64
-  - set PATH=%QTDIR%\bin;C:\go\bin;%PATH%
+  - set GOPATH=c:\gopath
+  - set PATH=%QTDIR%\bin;%GOPATH%\bin;%PATH%
   - go get qpm.io/qpm
   - go install qpm.io/qpm
-  - dir C:\go\bin
+  - dir %GOPATH%\bin
   - qpm install
 build_script:
   - qmake obsautorecord.pro
