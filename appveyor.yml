@@ -1,4 +1,5 @@
 install:
+  - call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
   - set QTDIR=C:\Qt\5.11.1\msvc2017_64
   - set GOPATH=c:\gopath
   - set PATH=%QTDIR%\bin;%GOPATH%\bin;%PATH%
