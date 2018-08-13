@@ -1,4 +1,4 @@
-version: 2.0.{build}
+version: 2.0.0.{build}
 
 os: Visual Studio 2017
 
@@ -15,7 +15,7 @@ build_script:
   - qmake -config release
   - nmake
   - windeployqt --release --no-translations --no-angle --no-opengl-sw release/obsautorecord.exe
-  - 7z a ObsAutoRecord_win64_{version}.zip .\release\*
+  - 7z a "ObsAutoRecord_win64.zip" .\release\*
   
 artifacts:
-  - path: ObsAutoRecord_win64_{version}.zip
+  - path: ObsAutoRecord_win64.zip
