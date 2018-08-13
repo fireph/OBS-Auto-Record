@@ -8,5 +8,7 @@ install:
   - go install qpm.io/qpm
   - qpm install
 build_script:
-  - qmake obsautorecord.pro
+  - qmake -config release
   - nmake
+  - windeployqt --release --no-translations --no-angle --no-opengl-sw release/obsautorecord.exe
+  - dir release\
