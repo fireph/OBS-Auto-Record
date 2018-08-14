@@ -1,7 +1,7 @@
 #include "ObsUtils.hpp"
+#include <QtCore/QDebug>
 
 #ifdef Q_OS_OSX
-#include <libproc.h>
 #include "ObsUtilsOSX.hpp"
 #endif
 
