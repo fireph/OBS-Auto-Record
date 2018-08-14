@@ -5,24 +5,17 @@
 namespace ObsUtilsOSX
 {
 
-    std::set<std::string> getOpenApps()
+    void setOpenApps(std::set<std::string>* appsOpen)
     {
-        std::set<std::string> appsOpen;
         NSWorkspace *workspace = [NSWorkspace sharedWorkspace];
         NSArray *apps = [workspace runningApplications];
 
         for (NSRunningApplication *a in apps) {
             if (a.bundleURL != nil) {
-                NSString *path = [a.bundleURL.absoluteString stringByRemovingPercentEncoding];
-                std::string filePath([path cStringUsingEncoding:NSUTF8StringEncoding]);
-                if (filePath.compare(filePath.size() - 1, 1, "/") == 0) {
-                    filePath = filePath.substr(0, filePath.size() - 1);
-                }
-                filePath = filePath.substr(filePath.find_last_of("/") + 1);
-                appsOpen.emplace(filePath);
+                std::string filename([a.bundleURL.lastPathComponent cStringUsingEncoding:NSUTF8StringEncoding]);
+                appsOpen->emplace(filename);
             }
         }
-        return appsOpen;
     }
 
     void showDockIcon()

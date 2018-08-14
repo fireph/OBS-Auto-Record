@@ -1,9 +1,9 @@
+#include "ObsUtils.hpp"
+
 #ifdef Q_OS_OSX
 #include <libproc.h>
 #include "ObsUtilsOSX.hpp"
 #endif
-
-#include "ObsUtils.hpp"
 
 namespace ObsUtils
 {
@@ -13,8 +13,9 @@ namespace ObsUtils
         std::set<std::string> appsOpen;
 #ifdef Q_OS_WIN
         EnumWindows(EnumWindowsProcOpenApps, reinterpret_cast<LPARAM>(&appsOpen));
-#elif Q_OS_OSX
-        std::set<std::string> appsOpen = ObsUtilsOSX::getOpenApps();
+#endif
+#ifdef Q_OS_OSX
+        ObsUtilsOSX::setOpenApps(&appsOpen);
 #endif
         for (const auto &appToWatch : appsToWatch)
         {

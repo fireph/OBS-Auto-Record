@@ -6,7 +6,7 @@
 
 namespace ObsUtilsOSX
 {
-    std::set<std::string> getOpenApps();
+    void setOpenApps(std::set<std::string>* appsOpen);
     void showDockIcon();
     void hideDockIcon();
 }
