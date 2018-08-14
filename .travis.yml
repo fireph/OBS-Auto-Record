@@ -13,12 +13,13 @@ script:
   - qmake -config release
   - make
   - macdeployqt "release/OBS Auto Record.app" -dmg
+  - mv "release/OBS Auto Record.dmg" ObsAutoRecord_osx.dmg
 
 deploy:
   provider: releases
   api_key:
     secure: HuIU2xUTG62So8fmegIKVkDrbsTmNrKP2u0c/b+G7HoGUrThS5ttKRQezA9pcBcf2di3+oDa2jWbtpD7HUgi/LjAZLRuhlAnnK27X4bYa3D/GzQuFzyKwKEqRjr5pLbQesx1EHOyHx/9krYx3Y/RPT4dx1ci8cHtydswoOvBLMkkIUSgDOPU58Foo9uFA8QQrR48Gd3NGibMbTvj4x+lk9Psw8Ucb7CRqDsJOxVb+Hvh311V+3hkW0UYp0xycg84X+BEui3/WdqwM4K2Be4OXdwBIsakBt8XDrGPaE8SscGfdvRTP/Yu3H9XSAHVVIDz4X1pP3fM5uSOx/MuU+kMABvk5B1HPMRW/qIUHytrdAjSLYmjaWVV1eC7Sr+8y4GLLHcEKZYjcmmwDyueoK1DhA5XwohIZl0VeoRezbqgOBUQRL8kLLHIgcHiRReNfNzA7ZNpYY6rITMqCCUcKLtRJdAV9g1phy3xzMLcV7IW9vSixcpBUocKoA75Co6fXSJ63MEDt3pLWzSeUPOjRDtv+pFbq67LPKex0H2pWGyzFdoGvSHJyh6RCP8LascwlHq6syteTIIyOnyvnH+TRie7lXU2gS5uvIdLz7wRxC1OesFrhBWB2fCxqAVL54LzE4YSyPA1/mSkUq5nki6nMxnwmrzEUo8uwCaYM46k8EiCIEM=
-  file: release/OBS Auto Record.dmg
+  file: ObsAutoRecord_osx.dmg
   on:
     repo: DungFu/OBS-Auto-Record
     tags: true
