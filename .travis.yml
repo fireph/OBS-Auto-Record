@@ -22,4 +22,3 @@ deploy:
   file: ObsAutoRecord_osx.dmg
   on:
     repo: DungFu/OBS-Auto-Record
-    tags: true
