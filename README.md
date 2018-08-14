@@ -1,4 +1,9 @@
 # OBS-Auto-Record
+
+| Windows | Latest  | Downloads |
+|---------|---------|-----------|
+|[![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/xxe0gbovybndeeyv/branch/master?svg=true)](https://ci.appveyor.com/project/DungFu/obs-auto-record)|[![Latest GitHub Release](https://img.shields.io/github/release/DungFu/OBS-Auto-Record.svg)](https://github.com/DungFu/OBS-Auto-Record/releases/latest)|[![Total Downloads](https://img.shields.io/github/downloads/DungFu/OBS-Auto-Record/total.svg)](https://github.com/DungFu/OBS-Auto-Record/releases/latest)|
+
 Controls OBS to auto record specific games when they are running (works on Windows/Mac)
 
 ## How to install
