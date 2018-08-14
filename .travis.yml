@@ -5,8 +5,7 @@ os:
 
 before_install:
     - brew update
-    - brew install qt5
-    - brew link --force qt5
+    - brew install qt5 qpm
 
 script:
     - qpm install
