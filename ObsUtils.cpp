@@ -31,7 +31,7 @@ namespace ObsUtils
 
     QString getNameFromAppPath(const QString &appPath) {
 #ifdef Q_OS_WIN
-        const char *exe = appPath.c_str();
+        const char *exe = appPath.toStdString().c_str();
         DWORD dwHandle;
         DWORD dwLen = GetFileVersionInfoSizeA(exe, &dwHandle);
         if (dwLen != 0)
@@ -69,14 +69,14 @@ namespace ObsUtils
                 std::sprintf(buffer, "\\StringFileInfo\\%04X%04X\\FileDescription", dwLangCode & 0x0000FFFF, (dwLangCode & 0xFFFF0000) >> 16);
                 if (VerQueryValueA(&data[0], buffer, &lpInfo, &unInfoLen))
                 {
-                    return QString::fromUtf8((char*)lpInfo);
+                    return QString((char*)lpInfo);
                 }
                 else
                 {
                     std::sprintf(buffer, "\\StringFileInfo\\%04X%04X\\ProductName", dwLangCode & 0x0000FFFF, (dwLangCode & 0xFFFF0000) >> 16);
                     if (VerQueryValueA(&data[0], buffer, &lpInfo, &unInfoLen))
                     {
-                        return QString::fromUtf8((char*)lpInfo);
+                        return QString((char*)lpInfo);
                     }
                 }
             }
@@ -139,7 +139,7 @@ namespace ObsUtils
         QSet<QString>& appsOpen =
             *reinterpret_cast<QSet<QString>*>(lParam);
         QString filename(&exe[0]);
-        appsOpen.insert(filename.substr(filename.find_last_of("\\") + 1));
+        appsOpen.insert(filename.mid(filename.lastIndexOf("\\") + 1));
         CloseHandle(hProcess);
 
         return TRUE;
