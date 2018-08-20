@@ -6,6 +6,8 @@
 
 Controls OBS to auto record specific games when they are running (works on Windows/Mac)
 
+![OBS Auto Record Screenshot](https://i.imgur.com/Ist6StX.png)
+
 ## How to install
 1. Install [OBS Studio](https://obsproject.com/download)
 2. Install [obs-websocket](https://github.com/Palakis/obs-websocket/releases) (must be version 4.3.1 or newer)
