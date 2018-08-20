@@ -9,6 +9,7 @@
 #include <QDialog>
 #include <QGroupBox>
 #include <QKeySequenceEdit>
+#include <QHash>
 #include <QLabel>
 #include <QLineEdit>
 #include <QListWidget>
@@ -30,7 +31,6 @@ class ObsSettingsDialog : public QDialog
 public:
     ObsSettingsDialog();
 
-    std::unordered_map<std::string, std::string> getAppsToWatch();
     void setVisible(bool visible) override;
     QKeySequence getPauseHotkey();
 
@@ -88,8 +88,10 @@ private:
     QSystemTrayIcon *trayIcon;
     QMenu *trayIconMenu;
 
-    QMap<ObsAutoRecordState, QIcon> trayIcons;
-    QMap<ObsAutoRecordState, QString> trayToolTips;
+    QHash<ObsAutoRecordState, QIcon> trayIcons;
+    QHash<ObsAutoRecordState, QString> trayToolTips;
+
+    QHash<QString, QString> appsToWatch;
 
     const int DEFAULT_INTERVAL = 15;
     const QString DEFAULT_ADDRESS = "ws://localhost:4444";

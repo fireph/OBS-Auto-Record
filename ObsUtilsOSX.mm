@@ -5,15 +5,14 @@
 namespace ObsUtilsOSX
 {
 
-    void setOpenApps(std::set<std::string>* appsOpen)
+    void setOpenApps(QSet<QString> &appsOpen)
     {
         NSWorkspace *workspace = [NSWorkspace sharedWorkspace];
         NSArray *apps = [workspace runningApplications];
 
         for (NSRunningApplication *a in apps) {
             if (a.bundleURL != nil) {
-                std::string filename([a.bundleURL.lastPathComponent cStringUsingEncoding:NSUTF8StringEncoding]);
-                appsOpen->emplace(filename);
+                appsOpen.insert(QString::fromNSString(a.bundleURL.lastPathComponent));
             }
         }
     }

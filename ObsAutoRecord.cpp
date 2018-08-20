@@ -7,9 +7,9 @@ QT_USE_NAMESPACE
 
 ObsAutoRecord::ObsAutoRecord(
     const QUrl &url,
-    const int interval,
+    const int &interval,
     const QString &folder,
-    std::unordered_map<std::string, std::string> &appsToWatch,
+    QHash<QString, QString> &appsToWatch,
     bool debug,
     QObject *parent) :
         QObject(parent),
@@ -36,7 +36,7 @@ void ObsAutoRecord::setAddress(const QUrl &url)
     m_obsWebSocket.setAddress(m_url);
 }
 
-void ObsAutoRecord::setInterval(const int interval)
+void ObsAutoRecord::setInterval(const int &interval)
 {
     m_interval = interval * 1000;
     timer->setInterval(m_interval);
@@ -45,11 +45,6 @@ void ObsAutoRecord::setInterval(const int interval)
 void ObsAutoRecord::setFolder(const QString &folder)
 {
     m_folder = folder;
-}
-
-void  ObsAutoRecord::setAppsToWatch(std::unordered_map<std::string, std::string> &appsToWatch)
-{
-    m_appsToWatch = appsToWatch;
 }
 
 void ObsAutoRecord::toggleIsPaused()
@@ -105,17 +100,16 @@ void ObsAutoRecord::onStatus(QJsonObject msg)
 {
     if (msg.contains("message-id")) {
         int msgid = msg.value("message-id").toString().toInt();
-        std::set<int>::iterator it = idsWaitToRecord.find(msgid);
-        if (it != idsWaitToRecord.end()) {
-            idsWaitToRecord.erase(msgid);
-            if (idsWaitToRecord.empty()) {
+        if (idsWaitToRecord.contains(msgid)) {
+            idsWaitToRecord.remove(msgid);
+            if (idsWaitToRecord.isEmpty()) {
                 startRecording();
             }
         }
     }
-    if (msg.contains("recording") && idsWaitToRecord.empty()) {
+    if (msg.contains("recording") && idsWaitToRecord.isEmpty()) {
         bool recording = msg.value("recording").toBool();
-        QString openApp = QString::fromStdString(ObsUtils::getOpenApp(m_appsToWatch));
+        QString openApp = ObsUtils::getOpenApp(m_appsToWatch);
         if (!recording && !openApp.isEmpty() && !m_isPaused) {
             if (m_debug) {
                 qDebug() << "App found: " << openApp;

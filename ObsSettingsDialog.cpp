@@ -26,7 +26,17 @@ ObsSettingsDialog::ObsSettingsDialog() :
     ObsUtilsOSX::hideDockIcon();
 #endif
 
-    std::unordered_map<std::string, std::string> appsToWatch = getAppsToWatch();
+    // Initialize appsToWatch
+    appsToWatch.clear();
+    int size = settings.beginReadArray("appsToWatch");
+    for (int i = 0; i < size; ++i) {
+        settings.setArrayIndex(i);
+        QString filename = settings.value("filename").toString();
+        QString name = settings.value("name").toString();
+        appsToWatch.insert(filename, name);
+    }
+    settings.endArray();
+
     oar = new ObsAutoRecord(
         QUrl(settings.value("address", DEFAULT_ADDRESS).toString()),
         settings.value("interval", DEFAULT_INTERVAL).toInt(),
@@ -75,20 +85,6 @@ ObsSettingsDialog::ObsSettingsDialog() :
     trayIcon->show();
 
     setWindowTitle(tr("OBS Auto Record"));
-}
-
-std::unordered_map<std::string, std::string> ObsSettingsDialog::getAppsToWatch()
-{
-    std::unordered_map<std::string, std::string> appsToWatch;
-    int size = settings.beginReadArray("appsToWatch");
-    for (int i = 0; i < size; ++i) {
-        settings.setArrayIndex(i);
-        std::string filename = settings.value("filename").toString().toStdString();
-        std::string name = settings.value("name").toString().toStdString();
-        appsToWatch.emplace(filename, name);
-    }
-    settings.endArray();
-    return appsToWatch;
 }
 
 void ObsSettingsDialog::setVisible(bool visible)
@@ -188,8 +184,7 @@ void ObsSettingsDialog::selectApp()
         if (!files.isEmpty()) {
             for (QUrl file : files) {
                 QString appPath = file.toLocalFile();
-                QString appName = QString::fromStdString(
-                    ObsUtils::getNameFromAppPath(QDir::toNativeSeparators(appPath).toStdString()));
+                QString appName = ObsUtils::getNameFromAppPath(QDir::toNativeSeparators(appPath));
                 QFileInfo fi(appPath);
                 QFileSystemModel *model = new QFileSystemModel;
                 model->setRootPath(fi.path());
@@ -213,7 +208,7 @@ void ObsSettingsDialog::appsToWatchChanged()
 {
     settings.remove("appsToWatch");
     settings.beginWriteArray("appsToWatch");
-    std::unordered_map<std::string, std::string> appsToWatch;
+    appsToWatch.clear();
     for (int i = 0; i < appList->count(); ++i) {
         QListWidgetItem* item = appList->item(i);
         settings.setArrayIndex(i);
@@ -225,12 +220,11 @@ void ObsSettingsDialog::appsToWatchChanged()
         buffer.open(QIODevice::WriteOnly);
         pixmap.save(&buffer, "PNG");
         settings.setValue("icon", bArray);
-        std::string name = item->text().toStdString();
-        std::string filename = item->data(Qt::UserRole).toString().toStdString();
-        appsToWatch.emplace(filename, name);
+        QString name = item->text();
+        QString filename = item->data(Qt::UserRole).toString();
+        appsToWatch.insert(filename, name);
     }
     settings.endArray();
-    oar->setAppsToWatch(appsToWatch);
 }
 
 void ObsSettingsDialog::appSelected()

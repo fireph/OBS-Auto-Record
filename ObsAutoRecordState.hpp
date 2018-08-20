@@ -8,4 +8,9 @@ enum class ObsAutoRecordState {
     WARNING
 };
 
+inline uint qHash(ObsAutoRecordState key, uint seed)
+{
+    return ::qHash(static_cast<uint>(key), seed);
+}
+
 #endif

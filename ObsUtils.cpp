@@ -9,26 +9,27 @@
 namespace ObsUtils
 {
 
-    std::string getOpenApp(std::unordered_map<std::string, std::string> &appsToWatch)
+    QString getOpenApp(QHash<QString, QString> &appsToWatch)
     {
-        std::set<std::string> appsOpen;
+        QSet<QString> appsOpen;
 #ifdef Q_OS_WIN
         EnumWindows(EnumWindowsProcOpenApps, reinterpret_cast<LPARAM>(&appsOpen));
 #endif
 #ifdef Q_OS_OSX
-        ObsUtilsOSX::setOpenApps(&appsOpen);
+        ObsUtilsOSX::setOpenApps(appsOpen);
 #endif
-        for (const auto &appToWatch : appsToWatch)
+        auto end = appsToWatch.cend();
+        for (auto it = appsToWatch.cbegin(); it != end; ++it)
         {
-            if (appsOpen.find(appToWatch.first) != appsOpen.end())
+            if (appsOpen.contains(it.key()))
             {
-                return appToWatch.second;
+                return it.value();
             }
         }
         return "";
     }
 
-    std::string getNameFromAppPath(std::string appPath) {
+    QString getNameFromAppPath(const QString &appPath) {
 #ifdef Q_OS_WIN
         const char *exe = appPath.c_str();
         DWORD dwHandle;
@@ -68,27 +69,25 @@ namespace ObsUtils
                 std::sprintf(buffer, "\\StringFileInfo\\%04X%04X\\FileDescription", dwLangCode & 0x0000FFFF, (dwLangCode & 0xFFFF0000) >> 16);
                 if (VerQueryValueA(&data[0], buffer, &lpInfo, &unInfoLen))
                 {
-                    return std::string((char*)lpInfo);
+                    return QString::fromUtf8((char*)lpInfo);
                 }
                 else
                 {
                     std::sprintf(buffer, "\\StringFileInfo\\%04X%04X\\ProductName", dwLangCode & 0x0000FFFF, (dwLangCode & 0xFFFF0000) >> 16);
                     if (VerQueryValueA(&data[0], buffer, &lpInfo, &unInfoLen))
                     {
-                        return std::string((char*)lpInfo);
+                        return QString::fromUtf8((char*)lpInfo);
                     }
                 }
             }
         }
-        std::string appFile = appPath.substr(appPath.find_last_of("\\") + 1);
+        QString appFile = appPath.mid(appPath.lastIndexOf("\\") + 1);
 #else
-        std::string appFile = appPath.substr(appPath.find_last_of("/") + 1);
+        QString appFile = appPath.mid(appPath.lastIndexOf("/") + 1);
 #endif
-        if (appFile.size() > 4
-            && (appFile.compare(appFile.size() - 4, 4, ".app") == 0
-                || appFile.compare(appFile.size() - 4, 4, ".exe") == 0))
+        if (appFile.endsWith(".exe") || appFile.endsWith(".app"))
         {
-            return appFile.substr(0, appFile.size() - 4);
+            return appFile.chopped(4);
         }
         else
         {
@@ -137,9 +136,9 @@ namespace ObsUtils
         DWORD exe_size = 1024;
         CHAR exe[1024];
         QueryFullProcessImageNameA(hProcess, 0, exe, &exe_size);
-        std::set<std::string>& appsOpen =
-            *reinterpret_cast<std::set<std::string>*>(lParam);
-        std::string filename(&exe[0]);
+        QSet<QString>& appsOpen =
+            *reinterpret_cast<QSet<QString>*>(lParam);
+        QString filename(&exe[0]);
         appsOpen.insert(filename.substr(filename.find_last_of("\\") + 1));
         CloseHandle(hProcess);
 

@@ -1,12 +1,12 @@
 #ifndef OBSUTILSOSX_H
 #define OBSUTILSOSX_H
 
-#include <set>
-#include <string>
+#include <QSet>
+#include <QString>
 
 namespace ObsUtilsOSX
 {
-    void setOpenApps(std::set<std::string>* appsOpen);
+    void setOpenApps(QSet<QString> &appsOpen);
     void showDockIcon();
     void hideDockIcon();
 }

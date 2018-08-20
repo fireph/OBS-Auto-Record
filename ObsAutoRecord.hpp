@@ -1,7 +1,10 @@
 #ifndef OBSAUTORECORD_H
 #define OBSAUTORECORD_H
 
+#include <QHash>
 #include <QJsonObject>
+#include <QSet>
+#include <QString>
 #include <QtCore/QObject>
 #include <QTimer>
 
@@ -15,15 +18,14 @@ class ObsAutoRecord : public QObject
 public:
     explicit ObsAutoRecord(
         const QUrl &url,
-        const int interval,
+        const int &interval,
         const QString &folder,
-        std::unordered_map<std::string, std::string> &appsToWatch,
+        QHash<QString, QString> &appsToWatch,
         bool debug = false,
         QObject *parent = nullptr);
     void setAddress(const QUrl &url);
-    void setInterval(const int interval);
+    void setInterval(const int &interval);
     void setFolder(const QString &folder);
-    void setAppsToWatch(std::unordered_map<std::string, std::string> &appsToWatch);
     void toggleIsPaused();
 
 signals:
@@ -44,12 +46,12 @@ private:
     QUrl m_url;
     int m_interval;
     QString m_folder;
-    std::unordered_map<std::string, std::string> m_appsToWatch;
+    QHash<QString, QString> &m_appsToWatch;
     bool m_debug;
     int m_msgid = 0;
     QTimer *timer;
     QString defaultFilenameFormatting = "%CCYY-%MM-%DD %hh-%mm-%ss";
-    std::set<int> idsWaitToRecord;
+    QSet<int> idsWaitToRecord;
     bool m_isConnected = false;
     bool m_isPaused = false;
 };
