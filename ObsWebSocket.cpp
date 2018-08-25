@@ -20,13 +20,13 @@ void ObsWebSocket::setAddress(const QUrl &url)
     }
 }
 
-void ObsWebSocket::sendRequest(QString requestType, int msgId)
+void ObsWebSocket::sendRequest(const QString &requestType, int msgId)
 {
     QJsonObject data {};
     sendRequest(requestType, msgId, data);
 }
 
-void ObsWebSocket::sendRequest(QString requestType, int msgId, QJsonObject data)
+void ObsWebSocket::sendRequest(const QString &requestType, int msgId, const QJsonObject &data)
 {
     QString messageId = QString::number(msgId);
     QJsonObject object
@@ -34,21 +34,21 @@ void ObsWebSocket::sendRequest(QString requestType, int msgId, QJsonObject data)
         {"request-type", requestType},
         {"message-id", messageId}
     };
-    foreach(const QString& key, data.keys()) {
+    foreach(const QString &key, data.keys()) {
         QJsonValue value = data.value(key);
         object[key] = value;
     }
     m_webSocket.sendTextMessage(jsonToString(object));
 }
 
-QString ObsWebSocket::jsonToString(const QJsonObject& json)
+QString ObsWebSocket::jsonToString(const QJsonObject &json)
 {
     QJsonDocument Doc(json);
     QByteArray ba = Doc.toJson();
     return QString(ba);
 }
 
-QJsonObject ObsWebSocket::stringToJson(const QString& in)
+QJsonObject ObsWebSocket::stringToJson(const QString &in)
 {
     QJsonObject obj;
     QJsonDocument doc = QJsonDocument::fromJson(in.toUtf8());
@@ -100,7 +100,7 @@ void ObsWebSocket::onClosed()
     startWebsocket();
 }
 
-void ObsWebSocket::onMessageReceived(QString message)
+void ObsWebSocket::onMessageReceived(const QString &message)
 {
     emit onResponse(stringToJson(message));
     if (m_debug)

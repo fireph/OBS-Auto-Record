@@ -65,7 +65,7 @@ ObsSettingsDialog::ObsSettingsDialog() :
     connect(appList, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(appEdit(QListWidgetItem*)));
     connect(trayIcon, &QSystemTrayIcon::activated, this, &ObsSettingsDialog::iconActivated);
 
-    QVBoxLayout *mainLayout = new QVBoxLayout;
+    auto mainLayout = new QVBoxLayout;
     mainLayout->addWidget(generalGroupBox);
     setLayout(mainLayout);
 
@@ -182,14 +182,14 @@ void ObsSettingsDialog::selectApp()
     if (dialog.exec()) {
         QList<QUrl> files = dialog.selectedUrls();
         if (!files.isEmpty()) {
-            for (QUrl file : files) {
+            for (const QUrl &file : files) {
                 QString appPath = file.toLocalFile();
                 QString appName = ObsUtils::getNameFromAppPath(QDir::toNativeSeparators(appPath));
                 QFileInfo fi(appPath);
-                QFileSystemModel *model = new QFileSystemModel;
+                auto model = new QFileSystemModel;
                 model->setRootPath(fi.path());
                 QIcon ic = model->fileIcon(model->index(fi.filePath()));
-                QListWidgetItem *newItem = new QListWidgetItem;
+                auto newItem = new QListWidgetItem;
                 newItem->setIcon(ic);
                 newItem->setText(appName);
                 newItem->setData(Qt::UserRole, file.fileName());
@@ -314,7 +314,7 @@ void ObsSettingsDialog::createGeneralGroupBox()
     int size = settings.beginReadArray("appsToWatch");
     for (int i = 0; i < size; ++i) {
         settings.setArrayIndex(i);
-        QListWidgetItem *newItem = new QListWidgetItem;
+        auto newItem = new QListWidgetItem;
         newItem->setText(settings.value("name").toString());
         newItem->setData(Qt::UserRole, settings.value("filename").toString());
         QPixmap pixmap;
@@ -328,7 +328,7 @@ void ObsSettingsDialog::createGeneralGroupBox()
     connect(appList->model(), &QAbstractListModel::rowsRemoved, this, &ObsSettingsDialog::appsToWatchChanged);
     connect(appList->model(), &QAbstractListModel::dataChanged, this, &ObsSettingsDialog::appsToWatchChanged);
 
-    QGridLayout *messageLayout = new QGridLayout;
+    auto messageLayout = new QGridLayout;
     messageLayout->addWidget(intervalLabel, 1, 0);
     messageLayout->addWidget(intervalSpinBox, 1, 1);
 

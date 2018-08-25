@@ -34,9 +34,9 @@ signals:
 private slots:
     void pingStatus();
     void startRecording(); 
-    void setFilenameFormatting(QString appName, int msgid);
+    void setFilenameFormatting(const QString &appName, int msgid);
     void changeFolderBack();
-    void onStatus(QJsonObject msg);
+    void onStatus(const QJsonObject &msg);
     void setIsConnected(bool isConnected);
 
 private:

@@ -13,10 +13,10 @@ int main(int argc, char *argv[])
     Q_INIT_RESOURCE(obsautorecord);
 
     QApplication app(argc, argv);
-    app.setAttribute(Qt::AA_UseHighDpiPixmaps);
+    QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 
     if (!QSystemTrayIcon::isSystemTrayAvailable()) {
-        QMessageBox::critical(0, QObject::tr("OBS Auto Record"),
+        QMessageBox::critical(nullptr, QObject::tr("OBS Auto Record"),
                               QObject::tr("I couldn't detect any system tray "
                                           "on this system."));
         return 1;
@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
          hotkey->setShortcut(pauseHotkey, true);
     });
 
-    return app.exec();
+    return QApplication::exec();
 }
 
 #else

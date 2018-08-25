@@ -67,8 +67,8 @@ void ObsAutoRecord::startRecording()
     m_msgid++;
     m_obsWebSocket.sendRequest("StartRecording", m_msgid);
 }
-        
-void ObsAutoRecord::setFilenameFormatting(QString appName, int msgid)
+
+void ObsAutoRecord::setFilenameFormatting(const QString &appName, int msgid)
 {
     QString filenameFormatting = appName + " - " + defaultFilenameFormatting;
     QJsonObject object
@@ -96,7 +96,7 @@ void ObsAutoRecord::changeFolderBack()
     m_obsWebSocket.sendRequest("SetFilenameFormatting", m_msgid, object2);
 }
 
-void ObsAutoRecord::onStatus(QJsonObject msg)
+void ObsAutoRecord::onStatus(const QJsonObject &msg)
 {
     if (msg.contains("message-id")) {
         int msgid = msg.value("message-id").toString().toInt();

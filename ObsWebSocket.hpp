@@ -11,10 +11,10 @@ class ObsWebSocket : public QObject
 public:
     explicit ObsWebSocket(const QUrl &url, bool debug = false, QObject *parent = nullptr);
     void setAddress(const QUrl &url);
-    void sendRequest(QString requestType, int msgId);
-    void sendRequest(QString requestType, int msgId, QJsonObject data);
-    QString jsonToString(const QJsonObject& json);
-    QJsonObject stringToJson(const QString& in);
+    void sendRequest(const QString &requestType, int msgId);
+    void sendRequest(const QString &requestType, int msgId, const QJsonObject &data);
+    QString jsonToString(const QJsonObject &json);
+    QJsonObject stringToJson(const QString &in);
     bool isConnected();
 
 signals:
@@ -24,14 +24,14 @@ signals:
 private slots:
     void onConnected();
     void onClosed();
-    void onMessageReceived(QString message);
+    void onMessageReceived(const QString &message);
     void startWebsocket();
 
 private:
     QWebSocket m_webSocket;
     QUrl m_url;
     bool m_debug;
-    bool m_isConnected;
+    bool m_isConnected = false;
 };
 
 #endif // OBSWEBSOCKET_H
