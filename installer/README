@@ -1,0 +1,6 @@
+Installs OBS Auto Record to Program Files and adds a Start Menu entry on Windows.
+
+Generate installer with
+
+binarycreator --offline-only -c config/config.xml -p packages installer
+

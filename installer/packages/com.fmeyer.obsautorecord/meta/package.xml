@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package>
+    <DisplayName>ObsAutoRecord</DisplayName>
+    <Description>Controls OBS to auto record specific games when they are running.</Description>
+    <Version>2.0.4</Version>
+    <ReleaseDate>2019-07-10</ReleaseDate>
+    <Default>true</Default>
+    <Script>installscript.qs</Script>
+</Package>

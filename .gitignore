@@ -49,3 +49,5 @@ vendor/
 dist/
 debug/
 release/
+
+ObsAutoRecord_win64.exe

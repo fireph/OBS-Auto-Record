@@ -2,9 +2,10 @@ os: Visual Studio 2017
 
 install:
   - call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
-  - set QTDIR=C:\Qt\5.11\msvc2017_64
-  - set GOPATH=c:\gopath
-  - set PATH=%QTDIR%\bin;%GOPATH%\bin;%PATH%
+  - set QTDIR=C:\Qt\5.13\msvc2017_64\bin
+  - set QTINSTALLER=C:\Qt\Tools\QtInstallerFramework\3.1.1\bin
+  - set GOPATH=c:\gopath\bin
+  - set PATH=%QTDIR%;%QTINSTALLER%;%GOPATH%;%PATH%
   - go get qpm.io/qpm
   - go install qpm.io/qpm
   - qpm install
@@ -13,16 +14,19 @@ build_script:
   - qmake -config release
   - nmake
   - windeployqt --release --no-translations --no-angle --no-opengl-sw release/obsautorecord.exe
-  - 7z a ObsAutoRecord_win64.zip .\release\*
+  - del /s /q installer\packages\com.fmeyer.obsautorecord\data
+  - rmdir /s /q installer\packages\com.fmeyer.obsautorecord\data
+  - move release installer\packages\com.fmeyer.obsautorecord\data
+  - binarycreator --offline-only -c installer\config\config.xml -p installer\packages ObsAutoRecord_win64.exe
   
 artifacts:
-  - path: ObsAutoRecord_win64.zip
+  - path: ObsAutoRecord_win64.exe
 
 deploy:
   provider: GitHub
   auth_token:
     secure: 3BV2pxge0Mhq8LeKV/tkKPEVFQGbxx6loqMurhf8wpRzvEm0HxXJvaOaxnJweMLp
-  artifact: ObsAutoRecord_win64.zip
+  artifact: ObsAutoRecord_win64.exe
   draft: false
   prerelease: false
   on:
