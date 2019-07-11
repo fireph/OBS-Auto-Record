@@ -3,7 +3,7 @@ os: Visual Studio 2017
 install:
   - call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
   - set QTDIR=C:\Qt\5.12\msvc2017_64
-  - set QTINSTALLER=C:\Qt\Tools\QtInstallerFramework\3.0.6
+  - set QTINSTALLER=C:\Qt\Tools\QtInstallerFramework\3.0
   - set GOPATH=c:\gopath
   - set PATH=%QTDIR%\bin;%QTINSTALLER%\bin;%GOPATH%\bin;%PATH%
   - go get qpm.io/qpm
