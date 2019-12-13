@@ -11,6 +11,7 @@
 namespace ObsUtils
 {
     QString getOpenApp(QHash<QString, QString> &appsToWatch);
+    QString getFilteredNameFromAppPath(const QString &appPath);
     QString getNameFromAppPath(const QString &appPath);
 #ifdef Q_OS_WIN
     static BOOL GetTranslationId(LPVOID lpData, UINT unBlockSize, WORD wLangId, DWORD &dwId, BOOL bPrimaryEnough = FALSE);

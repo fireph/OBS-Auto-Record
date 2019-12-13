@@ -29,6 +29,18 @@ namespace ObsUtils
         return "";
     }
 
+    QString getFilteredNameFromAppPath(const QString &appPath) {
+        QString appName = getNameFromAppPath(appPath);
+        appName.replace("|", "");
+        appName.replace(":", "");
+        appName.replace("<", "");
+        appName.replace(">", "");
+        appName.replace("?", "");
+        appName.replace("*", "");
+        appName.replace("\"", "");
+        return appName;
+    }
+
     QString getNameFromAppPath(const QString &appPath) {
 #ifdef Q_OS_WIN
         const char *exe = appPath.toStdString().c_str();
