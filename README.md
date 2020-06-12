@@ -2,7 +2,7 @@
 
 | OSX | Windows | Latest  | Downloads |
 |-----|---------|---------|-----------|
-|[![Travis Build Status](https://travis-ci.org/DungFu/OBS-Auto-Record.svg?branch=master)](https://travis-ci.org/DungFu/OBS-Auto-Record)|[![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/xxe0gbovybndeeyv/branch/master?svg=true)](https://ci.appveyor.com/project/DungFu/obs-auto-record)|[![Latest GitHub Release](https://img.shields.io/github/release/DungFu/OBS-Auto-Record.svg)](https://github.com/DungFu/OBS-Auto-Record/releases/latest)|[![Total Downloads](https://img.shields.io/github/downloads/DungFu/OBS-Auto-Record/total.svg)](https://github.com/DungFu/OBS-Auto-Record/releases/latest)|
+|[![Travis Build Status](https://travis-ci.org/DungFu/OBS-Auto-Record.svg?branch=master)](https://travis-ci.org/DungFu/OBS-Auto-Record)|[![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/xxe0gbovybndeeyv/branch/master?svg=true)](https://ci.appveyor.com/project/DungFu/obs-auto-record)|[![Latest GitHub Release](https://img.shields.io/github/release/fireph/OBS-Auto-Record.svg)](https://github.com/fireph/OBS-Auto-Record/releases/latest)|[![Total Downloads](https://img.shields.io/github/downloads/fireph/OBS-Auto-Record/total.svg)](https://github.com/fireph/OBS-Auto-Record/releases/latest)|
 
 Controls OBS to auto record specific games when they are running (works on Windows/Mac)
 
@@ -12,7 +12,7 @@ Controls OBS to auto record specific games when they are running (works on Windo
 1. Install [OBS Studio](https://obsproject.com/download)
 2. Install [obs-websocket](https://github.com/Palakis/obs-websocket/releases) (must be version 4.3.1 or newer)
 - You'll probably have to reinstall OBS studio again after installing obs-socket (trust me, it works)
-3. Download the latest [release](https://github.com/DungFu/OBS-Auto-Record/releases) of OBS Auto Record
+3. Download the latest [release](https://github.com/fireph/OBS-Auto-Record/releases) of OBS Auto Record
 4. Run OBS Auto Record!
 
 ## How to compile
