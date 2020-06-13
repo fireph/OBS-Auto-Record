@@ -2,7 +2,7 @@
 
 | OSX | Windows | Latest  | Downloads |
 |-----|---------|---------|-----------|
-|[![Travis Build Status](https://travis-ci.org/DungFu/OBS-Auto-Record.svg?branch=master)](https://travis-ci.org/DungFu/OBS-Auto-Record)|[![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/m0yfymu28t0idjw8?svg=true)](https://ci.appveyor.com/project/fireph/obs-auto-record)|[![Latest GitHub Release](https://img.shields.io/github/release/fireph/OBS-Auto-Record.svg)](https://github.com/fireph/OBS-Auto-Record/releases/latest)|[![Total Downloads](https://img.shields.io/github/downloads/fireph/OBS-Auto-Record/total.svg)](https://github.com/fireph/OBS-Auto-Record/releases/latest)|
+|[![Travis Build Status](https://travis-ci.org/fireph/OBS-Auto-Record.svg?branch=master)](https://travis-ci.org/fireph/OBS-Auto-Record)|[![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/m0yfymu28t0idjw8?svg=true)](https://ci.appveyor.com/project/fireph/obs-auto-record)|[![Latest GitHub Release](https://img.shields.io/github/release/fireph/OBS-Auto-Record.svg)](https://github.com/fireph/OBS-Auto-Record/releases/latest)|[![Total Downloads](https://img.shields.io/github/downloads/fireph/OBS-Auto-Record/total.svg)](https://github.com/fireph/OBS-Auto-Record/releases/latest)|
 
 Controls OBS to auto record specific games when they are running (works on Windows/Mac)
 
