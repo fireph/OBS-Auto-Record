@@ -22,5 +22,5 @@ deploy:
   file: release/ObsAutoRecord_osx.dmg
   skip_cleanup: true
   on:
-    repo: DungFu/OBS-Auto-Record
+    repo: fireph/OBS-Auto-Record
     tags: true

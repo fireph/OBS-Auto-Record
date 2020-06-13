@@ -18,7 +18,7 @@
 #endif
 
 ObsSettingsDialog::ObsSettingsDialog() :
-    settings("DungFu", "OBS Auto Record")
+    settings("fireph", "OBS Auto Record")
 {
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
