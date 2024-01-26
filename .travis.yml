@@ -9,7 +9,7 @@ before_install:
   - brew link --force qt6
 
 script:
-  - qpm install
+  - git submodule update --init --recursive
   - qmake -config release
   - make
   - macdeployqt "release/OBS Auto Record.app" -dmg

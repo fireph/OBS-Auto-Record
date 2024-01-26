@@ -10,13 +10,13 @@ install:
 build_script:
   - qmake -config release
   - nmake
-  - windeployqt --release --no-translations --no-angle --no-opengl-sw release\obsautorecord.exe
+  - windeployqt --release --no-translations --no-opengl-sw release\obsautorecord.exe
   - 7z a ObsAutoRecord_win64.zip .\release\*
   - del /s /q installer\packages\com.fmeyer.obsautorecord\data
   - rmdir /s /q installer\packages\com.fmeyer.obsautorecord\data
   - move release installer\packages\com.fmeyer.obsautorecord\data
   - binarycreator --offline-only -c installer\config\config.xml -p installer\packages ObsAutoRecord_win64_setup.exe
-  
+
 artifacts:
   - path: ObsAutoRecord_win64.zip
   - path: ObsAutoRecord_win64_setup.exe
