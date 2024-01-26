@@ -13,7 +13,6 @@ int main(int argc, char *argv[])
     Q_INIT_RESOURCE(obsautorecord);
 
     QApplication app(argc, argv);
-    QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 
     if (!QSystemTrayIcon::isSystemTrayAvailable()) {
         QMessageBox::critical(nullptr, QObject::tr("OBS Auto Record"),

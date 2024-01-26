@@ -61,13 +61,13 @@ QJsonObject ObsWebSocket::stringToJson(const QString &in)
         else
         {
             if (m_debug)
-                qDebug() << "Document is not an object" << endl;
+                qDebug() << "Document is not an object" << Qt::endl;
         }
     }
     else
     {
         if (m_debug)
-            qDebug() << "Invalid JSON..." << endl;
+            qDebug() << "Invalid JSON..." << Qt::endl;
     }
     return obj;
 }

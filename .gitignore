@@ -51,3 +51,5 @@ debug/
 release/
 
 ObsAutoRecord_win64.exe
+
+.vscode/*
