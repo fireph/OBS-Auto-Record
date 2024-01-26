@@ -5,6 +5,7 @@ install:
   - set QTDIR=C:\Qt\6.5.3\msvc2019_64
   - set QTINSTALLER=C:\Qt\Tools\QtInstallerFramework\4.6
   - set PATH=%QTDIR%\bin;%QTINSTALLER%\bin;%PATH%
+  - git submodule update --init --recursive
 
 build_script:
   - qmake -config release

@@ -45,7 +45,6 @@ macx: LIBS += -framework AppKit
 QT += websockets widgets
 requires(qtConfig(combobox))
 
-win32: include($$PWD\QHotkey\qhotkey.pri)
-macx: include($$PWD/QHotkey/qhotkey.pri)
+include($$PWD/QHotkey/qhotkey.pri)
 DEPENDPATH  += $$PWD/QHotkey/QHotkey
 INCLUDEPATH += $$PWD/QHotkey/QHotkey
