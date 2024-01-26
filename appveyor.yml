@@ -1,7 +1,7 @@
 os: Visual Studio 2022
 
 install:
-  - call "C:\Program Files (x86)\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat"
+  - call "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat"
   - set QTDIR=C:\Qt\6.5\msvc2022_64
   - set QTINSTALLER=C:\Qt\Tools\QtInstallerFramework\4.6
   - set PATH=%QTDIR%\bin;%QTINSTALLER%\bin;%PATH%
