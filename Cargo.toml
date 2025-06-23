@@ -1,5 +1,5 @@
 [package]
-name = "obs_game_recorder"
+name = "obs_auto_record"
 version = "0.1.0"
 edition = "2024"
 

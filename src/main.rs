@@ -107,7 +107,7 @@ impl App {
     }
 
     fn title(&self) -> String {
-        "OBS Game Recorder".to_string()
+        "OBS Auto Record".to_string()
     }
 
     fn theme(&self) -> Theme {
@@ -325,7 +325,7 @@ impl App {
 
     fn view(&self) -> Element<Message> {
         let header = row![
-            text("OBS Game Recorder")
+            text("OBS Auto Record")
                 .size(24)
                 .width(Length::Fill),
             button(if self.dark_mode { "Light" } else { "Dark" })
@@ -490,7 +490,7 @@ fn main() -> iced::Result {
         .with_writer(std::io::sink) // Discard all output in release
         .init();
 
-    iced::application("OBS Game Recorder", App::update, App::view)
+    iced::application("OBS Auto Record", App::update, App::view)
         .subscription(App::subscription)
         .theme(App::theme)
         .window_size(iced::Size::new(900.0, 700.0))
