@@ -1,4 +1,4 @@
-# OBS Game Recorder
+# OBS Auto Record
 
 A lightweight Rust application that automatically starts and stops OBS recording when specific games are running. Built with Iced for a beautiful cross-platform GUI.
 
@@ -27,12 +27,12 @@ A lightweight Rust application that automatically starts and stops OBS recording
 ```bash
 # Clone the repository
 git clone <repository-url>
-cd obs_game_recorder
+cd OBS-Auto-Record
 
 # Build in release mode for optimal size and performance
 cargo build --release
 
-# The executable will be in target/release/obs_game_recorder
+# The executable will be in target/release/obs_auto_record
 ```
 
 ## Usage
@@ -60,9 +60,9 @@ cargo build --release
 ## Configuration
 
 Settings are automatically saved to:
-- **Windows**: `%APPDATA%\obs_game_recorder\config.json`
-- **macOS**: `~/Library/Application Support/obs_game_recorder/config.json`
-- **Linux**: `~/.config/obs_game_recorder/config.json`
+- **Windows**: `%APPDATA%\obs_auto_record\config.json`
+- **macOS**: `~/Library/Application Support/obs_auto_record/config.json`
+- **Linux**: `~/.config/obs_auto_record/config.json`
 
 ## Optimization Features
 
@@ -115,7 +115,7 @@ cargo build --release
 cargo bloat --release --crates
 
 # Strip debug symbols (if not already done)
-strip target/release/obs_game_recorder
+strip target/release/obs_auto_record
 ```
 
 ## License
