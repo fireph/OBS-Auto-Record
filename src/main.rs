@@ -133,10 +133,37 @@ impl App {
             }
             Message::RemoveGame(index) => {
                 if index < self.games.len() {
-                    self.games.remove(index);
-                    self.save_config();
+                    let game = &self.games[index];
+                    
+                    // If the game being removed is currently recording, stop recording
+                    if game.is_recording {
+                        let obs_manager = self.obs_manager.clone();
+                        let game_name = game.name.clone();
+                        
+                        // Remove the game first
+                        self.games.remove(index);
+                        self.save_config();
+                        
+                        // Then stop recording
+                        Task::perform(
+                            async move {
+                                let mut manager = obs_manager.lock().await;
+                                match manager.stop_recording().await {
+                                    Ok(_) => Message::StoppedRecording(game_name),
+                                    Err(e) => Message::Error(format!("Failed to stop recording when removing game: {}", e)),
+                                }
+                            },
+                            |msg| msg,
+                        )
+                    } else {
+                        // Just remove the game if not recording
+                        self.games.remove(index);
+                        self.save_config();
+                        Task::none()
+                    }
+                } else {
+                    Task::none()
                 }
-                Task::none()
             }
             Message::EditGameName(index, name) => {
                 if let Some(game) = self.games.get_mut(index) {
