@@ -7,7 +7,6 @@ use crate::obs::ObsManager;
 use crate::process_monitor::ProcessMonitor;
 use crate::messages::Message;
 use crate::game::{GameEntry, GameMode};
-use crate::youtube::{YouTubeManager, YouTubeAuth};
 
 #[derive(Debug)]
 pub struct App {
@@ -16,21 +15,13 @@ pub struct App {
     dark_mode: bool,
     obs_connection_status: String,
     obs_manager: Arc<Mutex<ObsManager>>,
-    youtube_manager: Arc<Mutex<YouTubeManager>>,
-    youtube_auth: YouTubeAuth,
-    youtube_integration_enabled: bool,
     config: Config,
-    
-    // UI state for client secret dialog
-    show_client_secret_dialog: bool,
-    client_secret_input: String,
 }
 
 impl App {
     pub fn new() -> (Self, Task<Message>) {
         let config = Config::load().unwrap_or_default();
         let obs_manager = Arc::new(Mutex::new(ObsManager::new()));
-        let youtube_manager = Arc::new(Mutex::new(YouTubeManager::new()));
 
         let app = Self {
             games: config.games.clone(),
@@ -38,32 +29,20 @@ impl App {
             dark_mode: config.dark_mode,
             obs_connection_status: "Not connected".to_string(),
             obs_manager,
-            youtube_manager,
-            youtube_auth: config.youtube_auth.clone(),
-            youtube_integration_enabled: config.youtube_integration_enabled,
             config,
-            show_client_secret_dialog: false,
-            client_secret_input: String::new(),
         };
 
-        // Create startup tasks
-        let mut tasks = vec![];
-
         // Try to connect to OBS on startup
-        if !app.obs_url.is_empty() {
-            tasks.push(Task::perform(
+        let connect_task = if !app.obs_url.is_empty() {
+            Task::perform(
                 crate::obs::test_connection(app.obs_url.clone()),
                 Message::ObsConnectionResult,
-            ));
-        }
+            )
+        } else {
+            Task::none()
+        };
 
-        // Check YouTube authentication status on startup
-        tasks.push(Task::perform(
-            async { Message::CheckYouTubeAuth },
-            |msg| msg,
-        ));
-
-        (app, Task::batch(tasks))
+        (app, connect_task)
     }
 
     pub fn theme(&self) -> Theme {
@@ -233,45 +212,23 @@ impl App {
                     // Game started
                     if is_running && !was_running && !game.is_active() {
                         let obs_manager = self.obs_manager.clone();
-                        let youtube_manager = self.youtube_manager.clone();
                         let game_name = game.name.clone();
                         let mode = game.mode.clone();
-                        let youtube_enabled = self.youtube_integration_enabled;
                         
                         commands.push(Task::perform(
                             async move {
+                                let mut manager = obs_manager.lock().await;
                                 match mode {
                                     GameMode::Recording => {
-                                        let mut manager = obs_manager.lock().await;
                                         match manager.start_recording().await {
                                             Ok(_) => Message::StartedRecording(game_name),
                                             Err(e) => Message::Error(format!("Failed to start recording: {}", e)),
                                         }
                                     }
                                     GameMode::Streaming => {
-                                        // If YouTube integration is enabled, create a live stream first
-                                        if youtube_enabled {
-                                            let mut yt_manager = youtube_manager.lock().await;
-                                            match yt_manager.create_live_stream(&game_name).await {
-                                                Ok(_stream_info) => {
-                                                    // TODO: Configure OBS with the stream key
-                                                    // For now, just start streaming with existing settings
-                                                    drop(yt_manager); // Release the lock
-                                                    let mut manager = obs_manager.lock().await;
-                                                    match manager.start_streaming().await {
-                                                        Ok(_) => Message::StartedStreaming(game_name),
-                                                        Err(e) => Message::Error(format!("Failed to start streaming: {}", e)),
-                                                    }
-                                                }
-                                                Err(e) => Message::Error(format!("Failed to create YouTube live stream: {}", e)),
-                                            }
-                                        } else {
-                                            // Just start streaming without YouTube integration
-                                            let mut manager = obs_manager.lock().await;
-                                            match manager.start_streaming().await {
-                                                Ok(_) => Message::StartedStreaming(game_name),
-                                                Err(e) => Message::Error(format!("Failed to start streaming: {}", e)),
-                                            }
+                                        match manager.start_streaming().await {
+                                            Ok(_) => Message::StartedStreaming(game_name),
+                                            Err(e) => Message::Error(format!("Failed to start streaming: {}", e)),
                                         }
                                     }
                                 }
@@ -335,156 +292,6 @@ impl App {
                 tracing::error!("Application error: {}", error);
                 Task::none()
             }
-
-            // YouTube integration messages
-            Message::AuthenticateYouTube => {
-                let youtube_manager = self.youtube_manager.clone();
-                Task::perform(
-                    async move {
-                        let mut manager = youtube_manager.lock().await;
-                        match manager.authenticate().await {
-                            Ok(auth) => Message::YouTubeAuthResult(Ok(auth)),
-                            Err(e) => Message::YouTubeAuthResult(Err(e.to_string())),
-                        }
-                    },
-                    |msg| msg,
-                )
-            }
-            Message::YouTubeAuthResult(result) => {
-                match result {
-                    Ok(auth) => {
-                        self.youtube_auth = auth;
-                        self.youtube_integration_enabled = true;
-                        self.save_config();
-                        Task::none()
-                    }
-                    Err(error) => {
-                        tracing::error!("YouTube authentication failed: {}", error);
-                        Task::none()
-                    }
-                }
-            }
-            Message::CheckYouTubeAuth => {
-                let youtube_manager = self.youtube_manager.clone();
-                Task::perform(
-                    async move {
-                        let mut manager = youtube_manager.lock().await;
-                        match manager.check_auth_status().await {
-                            Ok(auth) => Message::YouTubeAuthStatus(auth),
-                            Err(_) => Message::YouTubeAuthStatus(YouTubeAuth::default()),
-                        }
-                    },
-                    |msg| msg,
-                )
-            }
-            Message::YouTubeAuthStatus(auth) => {
-                self.youtube_auth = auth;
-                if self.youtube_auth.authenticated {
-                    self.youtube_integration_enabled = true;
-                } else {
-                    self.youtube_integration_enabled = false;
-                }
-                self.save_config();
-                Task::none()
-            }
-            Message::DisconnectYouTube => {
-                let youtube_manager = self.youtube_manager.clone();
-                Task::perform(
-                    async move {
-                        let mut manager = youtube_manager.lock().await;
-                        match manager.disconnect().await {
-                            Ok(_) => Message::YouTubeDisconnected(Ok(())),
-                            Err(e) => Message::YouTubeDisconnected(Err(e.to_string())),
-                        }
-                    },
-                    |msg| msg,
-                )
-            }
-            Message::YouTubeDisconnected(result) => {
-                match result {
-                    Ok(_) => {
-                        self.youtube_auth = YouTubeAuth::default();
-                        self.youtube_integration_enabled = false;
-                        self.save_config();
-                        Task::none()
-                    }
-                    Err(error) => {
-                        tracing::error!("Failed to disconnect from YouTube: {}", error);
-                        Task::none()
-                    }
-                }
-            }
-            Message::ShowClientSecretDialog => {
-                self.show_client_secret_dialog = true;
-                self.client_secret_input.clear();
-                Task::none()
-            }
-            Message::HideClientSecretDialog => {
-                self.show_client_secret_dialog = false;
-                self.client_secret_input.clear();
-                Task::none()
-            }
-            Message::ClientSecretInput(input) => {
-                self.client_secret_input = input;
-                Task::none()
-            }
-            Message::SetClientSecret => {
-                let client_secret = self.client_secret_input.clone();
-                self.show_client_secret_dialog = false;
-                self.client_secret_input.clear();
-                
-                Task::perform(
-                    async move {
-                        match crate::youtube::YouTubeManager::save_client_secret(&client_secret).await {
-                            Ok(_) => Message::ClientSecretSet(Ok(())),
-                            Err(e) => Message::ClientSecretSet(Err(e.to_string())),
-                        }
-                    },
-                    |msg| msg,
-                )
-            }
-            Message::ClientSecretSet(result) => {
-                match result {
-                    Ok(_) => {
-                        // Client secret saved successfully, now we can authenticate
-                        Task::perform(
-                            async { Message::AuthenticateYouTube },
-                            |msg| msg,
-                        )
-                    }
-                    Err(error) => {
-                        tracing::error!("Failed to save client secret: {}", error);
-                        Task::none()
-                    }
-                }
-            }
-            Message::CreateLiveStream(game_name) => {
-                let youtube_manager = self.youtube_manager.clone();
-                Task::perform(
-                    async move {
-                        let mut manager = youtube_manager.lock().await;
-                        match manager.create_live_stream(&game_name).await {
-                            Ok(stream_info) => Message::LiveStreamCreated(Ok(stream_info)),
-                            Err(e) => Message::LiveStreamCreated(Err(e.to_string())),
-                        }
-                    },
-                    |msg| msg,
-                )
-            }
-            Message::LiveStreamCreated(result) => {
-                match result {
-                    Ok(_stream_info) => {
-                        // TODO: We could store the stream info and use it to configure OBS
-                        // For now, just log success
-                        tracing::info!("Live stream created successfully");
-                        Task::none()
-                    }
-                    Err(error) => {
-                        tracing::error!("Failed to create live stream: {}", error);
-                        Task::none()
-                    }
-                }
-            }
         }
     }
 
@@ -505,8 +312,6 @@ impl App {
         self.config.games = self.games.clone();
         self.config.obs_url = self.obs_url.clone();
         self.config.dark_mode = self.dark_mode;
-        self.config.youtube_auth = self.youtube_auth.clone();
-        self.config.youtube_integration_enabled = self.youtube_integration_enabled;
         
         if let Err(e) = self.config.save() {
             tracing::error!("Failed to save config: {}", e);
@@ -528,22 +333,6 @@ impl App {
 
     pub fn obs_connection_status(&self) -> &str {
         &self.obs_connection_status
-    }
-
-    pub fn youtube_auth(&self) -> &YouTubeAuth {
-        &self.youtube_auth
-    }
-
-    pub fn youtube_integration_enabled(&self) -> bool {
-        self.youtube_integration_enabled
-    }
-
-    pub fn show_client_secret_dialog(&self) -> bool {
-        self.show_client_secret_dialog
-    }
-
-    pub fn client_secret_input(&self) -> &str {
-        &self.client_secret_input
     }
 }
 

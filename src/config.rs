@@ -2,15 +2,12 @@ use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 use anyhow::Result;
 use crate::game::GameEntry;
-use crate::youtube::YouTubeAuth;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Config {
     pub games: Vec<GameEntry>,
     pub obs_url: String,
     pub dark_mode: bool,
-    pub youtube_auth: YouTubeAuth,
-    pub youtube_integration_enabled: bool,
 }
 
 impl Default for Config {
@@ -19,8 +16,6 @@ impl Default for Config {
             games: Vec::new(),
             obs_url: "ws://localhost:4455".to_string(),
             dark_mode: false,
-            youtube_auth: YouTubeAuth::default(),
-            youtube_integration_enabled: false,
         }
     }
 }
