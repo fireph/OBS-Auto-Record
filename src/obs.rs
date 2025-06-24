@@ -81,15 +81,6 @@ impl ObsManager {
             Err(anyhow!("Not connected to OBS"))
         }
     }
-
-    pub async fn is_recording(&self) -> Result<bool> {
-        if let Some(client) = &self.client {
-            let status = client.recording().status().await?;
-            Ok(status.active)
-        } else {
-            Ok(false)
-        }
-    }
 }
 
 pub async fn test_connection(url: String) -> Result<String, String> {

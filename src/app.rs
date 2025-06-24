@@ -1,6 +1,4 @@
 use iced::{Task, Subscription, Theme, time};
-use sysinfo::{System, ProcessesToUpdate};
-use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
@@ -17,7 +15,6 @@ pub struct App {
     dark_mode: bool,
     obs_connection_status: String,
     obs_manager: Arc<Mutex<ObsManager>>,
-    process_monitor: ProcessMonitor,
     config: Config,
 }
 
@@ -25,7 +22,6 @@ impl App {
     pub fn new() -> (Self, Task<Message>) {
         let config = Config::load().unwrap_or_default();
         let obs_manager = Arc::new(Mutex::new(ObsManager::new()));
-        let process_monitor = ProcessMonitor::new();
 
         let app = Self {
             games: config.games.clone(),
@@ -33,7 +29,6 @@ impl App {
             dark_mode: config.dark_mode,
             obs_connection_status: "Not connected".to_string(),
             obs_manager,
-            process_monitor,
             config,
         };
 
@@ -48,10 +43,6 @@ impl App {
         };
 
         (app, connect_task)
-    }
-
-    pub fn title(&self) -> String {
-        "OBS Auto Record".to_string()
     }
 
     pub fn theme(&self) -> Theme {
@@ -254,15 +245,7 @@ impl App {
         // Monitor processes every 5 seconds to reduce CPU/memory usage
         time::every(std::time::Duration::from_secs(5))
             .map(|_| {
-                let mut system = System::new();
-                system.refresh_processes(ProcessesToUpdate::All, false);
-                
-                let mut running_processes = HashMap::new();
-                for process in system.processes().values() {
-                    let name = process.name().to_string_lossy().to_string();
-                    running_processes.insert(name, true);
-                }
-                
+                let running_processes = ProcessMonitor::get_running_processes();
                 Message::ProcessUpdate(running_processes)
             })
     }
