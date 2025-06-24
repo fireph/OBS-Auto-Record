@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 use anyhow::Result;
-use crate::GameEntry;
+use crate::game::GameEntry;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Config {
