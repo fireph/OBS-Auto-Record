@@ -2,15 +2,15 @@
 
 <div align="center">
 
-**A lightweight, intelligent game recording automation tool for OBS Studio**
+**A lightweight, intelligent game recording and streaming automation tool for OBS Studio**
 
 [![Rust](https://img.shields.io/badge/rust-2024-orange.svg)](https://www.rust-lang.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)](https://github.com/your-repo/obs-auto-record)
 
-*Never miss a gaming moment again! Automatically start and stop OBS recordings when your favorite games launch.*
+*Never miss a gaming moment again! Automatically start and stop OBS recordings or streams when your favorite games launch.*
 
-![OBS Auto Record Screenshot](https://via.placeholder.com/800x500/2d3748/ffffff?text=OBS+Auto+Record+Screenshot)
+![OBS Auto Record Screenshot](https://via.placeholder.com/800x500/2d3748/ffffff?text=OBS+Auto+Record+%26+Stream+Screenshot)
 
 </div>
 
@@ -23,17 +23,24 @@
 - **Real-time status updates** with color-coded indicators
 - **Custom game names** - rename games to whatever you want
 
-### 🎬 **Seamless Recording**
-- **Auto-start recording** when games launch
-- **Auto-stop recording** when games close
+### 🎬 **Dual Mode Support**
+- **Recording Mode** - Auto-start/stop recording when games launch
+- **Streaming Mode** - Auto-start/stop streaming when games launch
+- **Per-game configuration** - Set each game to record or stream individually
+- **Smart cleanup** - removes games automatically stop their assigned action
+
+### 🔴 **Seamless Recording & Streaming**
+- **Auto-start recording/streaming** when games launch
+- **Auto-stop recording/streaming** when games close
 - **OBS WebSocket integration** for reliable control
-- **Smart cleanup** - removes recording games automatically stop recording
+- **Mode switching** - easily toggle between recording and streaming per game
 
 ### 🎨 **Beautiful Interface**
 - **Modern, clean UI** built with Iced framework
 - **Light/Dark mode** toggle for your preference
 - **Responsive design** that works on any screen size
 - **Intuitive controls** - add, remove, and manage games easily
+- **Visual mode indicators** - clearly see which games record vs stream
 
 ### ⚡ **Optimized Performance**
 - **Ultra-lightweight** - only ~20MB RAM usage
@@ -86,34 +93,44 @@ cargo build --release
    - Click **Add Game** 
    - Select your game's executable file (`.exe`)
    - Game name auto-detects but can be customized
+   - Choose **Recording** or **Streaming** mode for each game
    - Repeat for all games you want to monitor
 
 3. **Start Gaming!**
    - Launch any monitored game
-   - Recording starts automatically
-   - Stop the game to end recording
+   - Recording or streaming starts automatically based on game mode
+   - Stop the game to end recording/streaming
 
 ### 🎮 Game Status Indicators
 
 | Status | Indicator | Meaning |
 |--------|-----------|---------|
 | **● Recording** | 🔴 Red | Game is running and recording |
-| **● Running** | 🟢 Green | Game is running but not recording |
+| **● Streaming** | 🟣 Purple | Game is running and streaming |
+| **● Running** | 🟢 Green | Game is running but not recording/streaming |
 | **○ Stopped** | ⚫ Gray | Game is not running |
+
+### 🔄 Mode Management
+
+- **Recording Mode**: Games will automatically start/stop OBS recording
+- **Streaming Mode**: Games will automatically start/stop OBS streaming
+- **Mode Toggle**: Click the mode button to switch between Recording/Streaming
+- **Smart Restrictions**: Mode can only be changed when game is not active
 
 ### ⚙️ Advanced Features
 
 - **Theme Toggle**: Switch between light and dark modes
 - **Live Editing**: Rename games while they're running
-- **Smart Cleanup**: Removing a recording game automatically stops recording
+- **Smart Cleanup**: Removing an active game automatically stops recording/streaming
 - **Persistent Settings**: All configurations saved between sessions
+- **Mixed Modes**: Some games can record while others stream
 
 ## 🏗️ Technical Details
 
 ### Architecture
 - **Frontend**: Iced GUI framework with tiny-skia renderer
 - **Backend**: Tokio async runtime
-- **OBS Integration**: obws WebSocket client
+- **OBS Integration**: obws WebSocket client with full recording/streaming support
 - **Process Monitoring**: sysinfo system interface
 - **Configuration**: JSON-based persistent storage
 
@@ -147,7 +164,17 @@ Settings are automatically saved to:
       "path": "C:\\Games\\Rocket League\\RocketLeague.exe",
       "name": "Rocket League",
       "is_running": false,
-      "is_recording": false
+      "is_recording": false,
+      "is_streaming": false,
+      "mode": "Recording"
+    },
+    {
+      "path": "C:\\Games\\Valorant\\VALORANT.exe",
+      "name": "Valorant Streams",
+      "is_running": false,
+      "is_recording": false,
+      "is_streaming": false,
+      "mode": "Streaming"
     }
   ],
   "obs_url": "ws://localhost:4455",
@@ -171,11 +198,17 @@ Settings are automatically saved to:
 - ✅ Check game process name matches executable name
 - ✅ Run as administrator if needed
 
-#### 🔴 **Recording Not Starting**
+#### 🔴 **Recording/Streaming Not Starting**
 - ✅ Verify OBS connection is active (green status)
-- ✅ Check OBS recording settings are configured
+- ✅ Check OBS recording/streaming settings are configured
 - ✅ Ensure OBS has write permissions to output folder
-- ✅ Try manually starting recording in OBS first
+- ✅ For streaming: verify stream key and server settings in OBS
+- ✅ Try manually starting recording/streaming in OBS first
+
+#### 🔴 **Mode Toggle Not Working**
+- ✅ Mode can only be changed when game is not running
+- ✅ Stop the game first, then change mode
+- ✅ Active games (recording/streaming) cannot change modes
 
 ### Debug Mode
 
@@ -210,7 +243,11 @@ cargo run
 ```
 obs-auto-record/
 ├── src/
-│   ├── main.rs          # Main application and UI
+│   ├── main.rs          # Main application entry point
+│   ├── app.rs           # App state and update logic
+│   ├── ui.rs            # User interface components
+│   ├── messages.rs      # Message types for UI events
+│   ├── game.rs          # Game entry and mode definitions
 │   ├── obs.rs           # OBS WebSocket integration
 │   ├── config.rs        # Configuration management
 │   └── process_monitor.rs # System process monitoring

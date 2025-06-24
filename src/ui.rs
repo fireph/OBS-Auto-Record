@@ -8,6 +8,7 @@ use iced::{
 
 use crate::app::App;
 use crate::messages::Message;
+use crate::game::GameMode;
 
 pub fn view(app: &App) -> Element<Message> {
     let header = header_section(app);
@@ -26,7 +27,7 @@ pub fn view(app: &App) -> Element<Message> {
             games_section,
         ]
         .spacing(10)
-        .max_width(800)
+        .max_width(900)
     )
     .padding(20)
     .center_x(Length::Fill)
@@ -35,7 +36,7 @@ pub fn view(app: &App) -> Element<Message> {
 
 fn header_section(app: &App) -> Element<Message> {
     row![
-        text("OBS Auto Record")
+        text("OBS Auto Record & Stream")
             .size(24)
             .width(Length::Fill),
         button(if app.dark_mode() { "Light" } else { "Dark" })
@@ -111,12 +112,9 @@ fn games_section(app: &App) -> Element<Message> {
 }
 
 fn game_item(index: usize, game: &crate::game::GameEntry) -> Element<Message> {
-    let status_text = if game.is_recording {
-        "● Recording"
-    } else if game.is_running {
-        "● Running" 
-    } else {
-        "○ Stopped"
+    let mode_text = match game.mode {
+        GameMode::Recording => "Recording",
+        GameMode::Streaming => "Streaming",
     };
 
     container(
@@ -132,14 +130,19 @@ fn game_item(index: usize, game: &crate::game::GameEntry) -> Element<Message> {
             .width(Length::Fill)
             .spacing(5),
             column![
-                text(status_text).size(14)
-                    .color(if game.is_recording {
-                        iced::Color::from_rgb(0.8, 0.2, 0.2) // Red for recording
-                    } else if game.is_running {
-                        iced::Color::from_rgb(0.2, 0.8, 0.2) // Green for running
-                    } else {
-                        iced::Color::from_rgb(0.6, 0.6, 0.6) // Gray for stopped
-                    }),
+                row![
+                    text("Mode:")
+                        .size(12)
+                        .color(iced::Color::from_rgb(0.6, 0.6, 0.6)),
+                    button(mode_text)
+                        .on_press(Message::ToggleGameMode(index))
+                        .padding([2, 6]),
+                ]
+                .spacing(5)
+                .align_y(iced::Alignment::Center),
+                text(game.status_text())
+                    .size(14)
+                    .color(game.status_color()),
                 button("Remove")
                     .on_press(Message::RemoveGame(index))
                     .padding([3, 8]),

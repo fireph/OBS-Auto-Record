@@ -8,6 +8,7 @@ pub enum Message {
     GameSelected(PathBuf),
     RemoveGame(usize),
     EditGameName(usize, String),
+    ToggleGameMode(usize),
     ToggleDarkMode,
     UpdateObsUrl(String),
     TestObsConnection,
@@ -16,5 +17,7 @@ pub enum Message {
     ProcessUpdate(HashMap<String, bool>),
     StartedRecording(String),
     StoppedRecording(String),
+    StartedStreaming(String),
+    StoppedStreaming(String),
     Error(String),
 }

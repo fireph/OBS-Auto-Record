@@ -81,6 +81,40 @@ impl ObsManager {
             Err(anyhow!("Not connected to OBS"))
         }
     }
+
+    pub async fn start_streaming(&mut self) -> Result<()> {
+        if let Some(client) = &self.client {
+            // Check if already streaming
+            let streaming_status = client.streaming().status().await?;
+            if streaming_status.active {
+                return Ok(()); // Already streaming
+            }
+
+            client.streaming().start().await
+                .map_err(|e| anyhow!("Failed to start streaming: {}", e))?;
+            
+            Ok(())
+        } else {
+            Err(anyhow!("Not connected to OBS"))
+        }
+    }
+
+    pub async fn stop_streaming(&mut self) -> Result<()> {
+        if let Some(client) = &self.client {
+            // Check if actually streaming
+            let streaming_status = client.streaming().status().await?;
+            if !streaming_status.active {
+                return Ok(()); // Not streaming
+            }
+
+            client.streaming().stop().await
+                .map_err(|e| anyhow!("Failed to stop streaming: {}", e))?;
+            
+            Ok(())
+        } else {
+            Err(anyhow!("Not connected to OBS"))
+        }
+    }
 }
 
 pub async fn test_connection(url: String) -> Result<String, String> {

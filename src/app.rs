@@ -6,7 +6,7 @@ use crate::config::Config;
 use crate::obs::ObsManager;
 use crate::process_monitor::ProcessMonitor;
 use crate::messages::Message;
-use crate::game::GameEntry;
+use crate::game::{GameEntry, GameMode};
 
 #[derive(Debug)]
 pub struct App {
@@ -70,28 +70,36 @@ impl App {
                 if index < self.games.len() {
                     let game = &self.games[index];
                     
-                    // If the game being removed is currently recording, stop recording
-                    if game.is_recording {
+                    // If the game being removed is currently active, stop the appropriate action
+                    if game.is_recording || game.is_streaming {
                         let obs_manager = self.obs_manager.clone();
                         let game_name = game.name.clone();
+                        let is_recording = game.is_recording;
                         
                         // Remove the game first
                         self.games.remove(index);
                         self.save_config();
                         
-                        // Then stop recording
+                        // Then stop recording or streaming
                         Task::perform(
                             async move {
                                 let mut manager = obs_manager.lock().await;
-                                match manager.stop_recording().await {
-                                    Ok(_) => Message::StoppedRecording(game_name),
-                                    Err(e) => Message::Error(format!("Failed to stop recording when removing game: {}", e)),
+                                if is_recording {
+                                    match manager.stop_recording().await {
+                                        Ok(_) => Message::StoppedRecording(game_name),
+                                        Err(e) => Message::Error(format!("Failed to stop recording when removing game: {}", e)),
+                                    }
+                                } else {
+                                    match manager.stop_streaming().await {
+                                        Ok(_) => Message::StoppedStreaming(game_name),
+                                        Err(e) => Message::Error(format!("Failed to stop streaming when removing game: {}", e)),
+                                    }
                                 }
                             },
                             |msg| msg,
                         )
                     } else {
-                        // Just remove the game if not recording
+                        // Just remove the game if not active
                         self.games.remove(index);
                         self.save_config();
                         Task::none()
@@ -104,6 +112,19 @@ impl App {
                 if let Some(game) = self.games.get_mut(index) {
                     game.name = name;
                     self.save_config();
+                }
+                Task::none()
+            }
+            Message::ToggleGameMode(index) => {
+                if let Some(game) = self.games.get_mut(index) {
+                    // Only allow mode change if game is not currently active
+                    if !game.is_recording && !game.is_streaming {
+                        game.mode = match game.mode {
+                            GameMode::Recording => GameMode::Streaming,
+                            GameMode::Streaming => GameMode::Recording,
+                        };
+                        self.save_config();
+                    }
                 }
                 Task::none()
             }
@@ -189,30 +210,51 @@ impl App {
                     game.is_running = is_running;
                     
                     // Game started
-                    if is_running && !was_running && !game.is_recording {
+                    if is_running && !was_running && !game.is_active() {
                         let obs_manager = self.obs_manager.clone();
                         let game_name = game.name.clone();
+                        let mode = game.mode.clone();
+                        
                         commands.push(Task::perform(
                             async move {
                                 let mut manager = obs_manager.lock().await;
-                                match manager.start_recording().await {
-                                    Ok(_) => Message::StartedRecording(game_name),
-                                    Err(e) => Message::Error(format!("Failed to start recording: {}", e)),
+                                match mode {
+                                    GameMode::Recording => {
+                                        match manager.start_recording().await {
+                                            Ok(_) => Message::StartedRecording(game_name),
+                                            Err(e) => Message::Error(format!("Failed to start recording: {}", e)),
+                                        }
+                                    }
+                                    GameMode::Streaming => {
+                                        match manager.start_streaming().await {
+                                            Ok(_) => Message::StartedStreaming(game_name),
+                                            Err(e) => Message::Error(format!("Failed to start streaming: {}", e)),
+                                        }
+                                    }
                                 }
                             },
                             |msg| msg,
                         ));
                     }
                     // Game stopped
-                    else if !is_running && was_running && game.is_recording {
+                    else if !is_running && was_running && game.is_active() {
                         let obs_manager = self.obs_manager.clone();
                         let game_name = game.name.clone();
+                        let is_recording = game.is_recording;
+                        
                         commands.push(Task::perform(
                             async move {
                                 let mut manager = obs_manager.lock().await;
-                                match manager.stop_recording().await {
-                                    Ok(_) => Message::StoppedRecording(game_name),
-                                    Err(e) => Message::Error(format!("Failed to stop recording: {}", e)),
+                                if is_recording {
+                                    match manager.stop_recording().await {
+                                        Ok(_) => Message::StoppedRecording(game_name),
+                                        Err(e) => Message::Error(format!("Failed to stop recording: {}", e)),
+                                    }
+                                } else {
+                                    match manager.stop_streaming().await {
+                                        Ok(_) => Message::StoppedStreaming(game_name),
+                                        Err(e) => Message::Error(format!("Failed to stop streaming: {}", e)),
+                                    }
                                 }
                             },
                             |msg| msg,
@@ -231,6 +273,18 @@ impl App {
             Message::StoppedRecording(game_name) => {
                 if let Some(game) = self.games.iter_mut().find(|g| g.name == game_name) {
                     game.is_recording = false;
+                }
+                Task::none()
+            }
+            Message::StartedStreaming(game_name) => {
+                if let Some(game) = self.games.iter_mut().find(|g| g.name == game_name) {
+                    game.is_streaming = true;
+                }
+                Task::none()
+            }
+            Message::StoppedStreaming(game_name) => {
+                if let Some(game) = self.games.iter_mut().find(|g| g.name == game_name) {
+                    game.is_streaming = false;
                 }
                 Task::none()
             }
