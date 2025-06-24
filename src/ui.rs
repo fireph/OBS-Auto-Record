@@ -36,7 +36,7 @@ pub fn view(app: &App) -> Element<Message> {
 
 fn header_section(app: &App) -> Element<Message> {
     row![
-        text("OBS Auto Record & Stream")
+        text("OBS Auto Record")
             .size(24)
             .width(Length::Fill),
         button(if app.dark_mode() { "Light" } else { "Dark" })
