@@ -11,27 +11,35 @@ use crate::messages::Message;
 use crate::game::GameMode;
 
 pub fn view(app: &App) -> Element<Message> {
-    let header = header_section(app);
-    let obs_section = obs_section(app);
-    let games_section = games_section(app);
+    let content = column![
+        header_section(app),
+        horizontal_rule(2),
+        Space::with_height(10),
+        obs_section(app),
+        Space::with_height(10),
+        youtube_section(app),
+        Space::with_height(20),
+        horizontal_rule(1),
+        Space::with_height(10),
+        games_section(app),
+    ]
+    .spacing(10)
+    .max_width(900);
 
-    container(
+    let main_content = container(content)
+        .padding(20)
+        .center_x(Length::Fill);
+
+    // Show client secret dialog if needed
+    if app.show_client_secret_dialog() {
         column![
-            header,
-            horizontal_rule(2),
-            Space::with_height(10),
-            obs_section,
+            client_secret_dialog(app),
             Space::with_height(20),
-            horizontal_rule(1),
-            Space::with_height(10),
-            games_section,
-        ]
-        .spacing(10)
-        .max_width(900)
-    )
-    .padding(20)
-    .center_x(Length::Fill)
-    .into()
+            main_content,
+        ].into()
+    } else {
+        main_content.into()
+    }
 }
 
 fn header_section(app: &App) -> Element<Message> {
@@ -70,6 +78,137 @@ fn obs_section(app: &App) -> Element<Message> {
             }),
     ]
     .spacing(10)
+    .into()
+}
+
+fn youtube_section(app: &App) -> Element<Message> {
+    let status_text = if app.youtube_auth().authenticated {
+        if let Some(channel_name) = &app.youtube_auth().channel_name {
+            format!("✅ Connected as: {}", channel_name)
+        } else {
+            "✅ Connected to YouTube".to_string()
+        }
+    } else {
+        "Not connected to YouTube".to_string()
+    };
+
+    let status_color = if app.youtube_auth().authenticated {
+        iced::Color::from_rgb(0.0, 0.8, 0.0)
+    } else {
+        iced::Color::from_rgb(0.6, 0.6, 0.6)
+    };
+
+    let action_button = if app.youtube_auth().authenticated {
+        button("Disconnect YouTube")
+            .on_press(Message::DisconnectYouTube)
+            .padding([5, 10])
+    } else {
+        button("Connect YouTube")
+            .on_press(Message::AuthenticateYouTube)
+            .padding([5, 10])
+    };
+
+    column![
+        row![
+            text("YouTube Integration").size(18),
+            Space::with_width(Length::Fill),
+            if !app.youtube_auth().authenticated {
+                button("Setup")
+                    .on_press(Message::ShowClientSecretDialog)
+                    .padding([3, 8])
+            } else {
+                // Empty button when authenticated (invisible)
+                button("")
+                    .padding([3, 8])
+                    .style(|_, _| button::Style {
+                        background: None,
+                        text_color: iced::Color::TRANSPARENT,
+                        ..Default::default()
+                    })
+            }
+        ]
+        .align_y(iced::Alignment::Center),
+        
+        row![
+            text(status_text)
+                .color(status_color)
+                .width(Length::Fill),
+            action_button,
+        ]
+        .spacing(10)
+        .align_y(iced::Alignment::Center),
+        
+        if app.youtube_integration_enabled() {
+            text("Auto-create YouTube live streams when games start streaming")
+                .size(12)
+                .color(iced::Color::from_rgb(0.5, 0.5, 0.5))
+        } else {
+            text("Connect to automatically create YouTube live streams")
+                .size(12)
+                .color(iced::Color::from_rgb(0.5, 0.5, 0.5))
+        }
+    ]
+    .spacing(10)
+    .into()
+}
+
+fn client_secret_dialog(app: &App) -> Element<Message> {
+    let instructions = crate::youtube::get_client_secret_setup_instructions();
+    
+    container(
+        column![
+            text("Setup YouTube Integration").size(20),
+            
+            Space::with_height(10),
+            
+            scrollable(
+                text(instructions)
+                    .size(12)
+            )
+            .height(150),
+            
+            Space::with_height(10),
+            
+            text("Paste your client secret JSON here:")
+                .size(14),
+            
+            text_input(
+                r#"{"installed":{"client_id":"...","client_secret":"..."}}"#,
+                app.client_secret_input()
+            )
+            .on_input(Message::ClientSecretInput)
+            .width(Length::Fill),
+            
+            Space::with_height(15),
+            
+            row![
+                button("Cancel")
+                    .on_press(Message::HideClientSecretDialog)
+                    .padding([8, 16]),
+                Space::with_width(Length::Fill),
+                button("Save & Authenticate")
+                    .on_press(Message::SetClientSecret)
+                    .padding([8, 16]),
+            ]
+            .spacing(10)
+            .align_y(iced::Alignment::Center),
+        ]
+        .spacing(10)
+        .width(Length::Fill)
+        .max_width(700)
+    )
+    .padding(20)
+    .style(|theme: &iced::Theme| {
+        container::Style {
+            background: Some(iced::Background::Color(theme.palette().background)),
+            border: iced::Border {
+                color: theme.palette().primary,
+                width: 2.0,
+                radius: 8.0.into(),
+            },
+            ..Default::default()
+        }
+    })
     .into()
 }
 

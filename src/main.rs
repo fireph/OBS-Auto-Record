@@ -10,6 +10,7 @@ mod process_monitor;
 mod ui;
 mod messages;
 mod game;
+mod youtube;
 
 fn main() -> iced::Result {
     // Only initialize logging in debug mode
@@ -28,6 +29,6 @@ fn main() -> iced::Result {
     iced::application("OBS Auto Record", App::update, App::view)
         .subscription(App::subscription)
         .theme(App::theme)
-        .window_size(iced::Size::new(900.0, 700.0))
+        .window_size(iced::Size::new(950.0, 800.0)) // Slightly wider for YouTube section
         .run_with(App::new)
 }
