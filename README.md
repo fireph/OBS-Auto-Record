@@ -10,7 +10,8 @@
 
 *Never miss a gaming moment again! Automatically start and stop OBS recordings or streams when your favorite games launch.*
 
-![OBS Auto Record Screenshot](https://via.placeholder.com/800x500/2d3748/ffffff?text=OBS+Auto+Record+%26+Stream+Screenshot)
+![OBS Auto Record Screenshot](https://github.com/user-attachments/assets/3645a409-0705-43e6-90dd-f808cf316f08)
+
 
 </div>
 
