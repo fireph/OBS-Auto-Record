@@ -1,4 +1,5 @@
 #include "ObsWebSocket.hpp"
+#include <QtNetwork/QAbstractSocket>
 #include <QJsonDocument>
 #include <QtCore/QDebug>
 
@@ -16,7 +17,11 @@ void ObsWebSocket::setAddress(const QUrl &url)
 {
     if (m_url != url) {
         m_url = url;
-        m_webSocket.close();
+        if (m_webSocket.state() == QAbstractSocket::UnconnectedState) {
+            startWebsocket();
+        } else {
+            m_webSocket.close();
+        }
     }
 }
 
@@ -109,8 +114,13 @@ void ObsWebSocket::onMessageReceived(const QString &message)
 
 void ObsWebSocket::startWebsocket()
 {
+    if (m_url.isEmpty() || !m_url.isValid()) {
+        m_isConnected = false;
+        return;
+    }
     if (m_debug)
         qDebug() << "Connecting to WebSocket server:" << m_url;
+    disconnect(&m_webSocket, nullptr, this, nullptr);
     connect(&m_webSocket, &QWebSocket::connected,
             this, &ObsWebSocket::onConnected);
     connect(&m_webSocket, &QWebSocket::disconnected,
